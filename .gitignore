@@ -1,0 +1,8 @@
+*.*
+!.gitignore
+!HW1.pdf
+!README.md
+!Report.md
+!Report.pdf
+!codes/*.py
+!codes/README.md
