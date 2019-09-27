@@ -73,13 +73,13 @@ class Linear(Layer):
     def __init__(self, name, in_num, out_num, init_std):
         super(Linear, self).__init__(name, trainable=True)
 
-        print('layer %s : in_num = %d , out_num = %d , init_std = %d' %  (name, in_num, out_num, init_std), file=utils.log_file)
+        print('layer %s : in_num = %d , out_num = %d , init_std = %.5f' %  (name, in_num, out_num, init_std), file=utils.log_file)
 
         self.in_num = in_num
         self.out_num = out_num
         self.W = np.random.randn(in_num, out_num) * init_std
         # self.b = np.zeros(out_num)
-        self.b = np.random.randn(out_num) * init_std
+        self.b = np.random.randn(out_num)
 
         self.grad_W = np.zeros((in_num, out_num))
         self.grad_b = np.zeros(out_num)
@@ -97,7 +97,7 @@ class Linear(Layer):
     def backward(self, grad_output):
         '''Your codes here'''
         # print(self.W[0], file=sys.stderr)
-        # print(grad_output[0][:4], file=sys.stderr)
+        # print(grad_output[0][:6], file=sys.stderr)
         input = self._saved_tensor
         self.grad_W = np.dot(np.transpose(input), grad_output) / input.shape[0]
         self.grad_b = np.dot(np.ones((1, input.shape[0])), grad_output)[0] / input.shape[0]
