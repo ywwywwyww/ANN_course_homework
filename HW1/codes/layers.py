@@ -1,5 +1,7 @@
 import numpy as np
 import math
+import utils
+import sys
 
 class Layer(object):
     def __init__(self, name, trainable=False):
@@ -24,35 +26,30 @@ class Layer(object):
 
 
 class Relu(Layer):
-    def __init__(self, name):
+    def __init__(self, name='relu'):
         super(Relu, self).__init__(name)
+        print('relu %s\n' % (name), file=utils.log_file)
 
     def f(self, input):
         return np.fmax(input, np.zeros(input.shape))
 
     def df(self, input):
-        return (input > 0).astype(np.float64)
+        return (input >= 0).astype(np.float64)
 
     def forward(self, input):
         '''Your codes here'''
         self._saved_for_backward(input)
         return self.f(input)
 
-        pass
-
     def backward(self, grad_output):
         '''Your codes here'''
-        # print(self._saved_tensor[0])
-        # print(grad_output[0])
-        # print('--------------------')
         return np.multiply(grad_output, self.df(self._saved_tensor))
-
-        pass
 
 
 class Sigmoid(Layer):
-    def __init__(self, name):
+    def __init__(self, name='sigmoid'):
         super(Sigmoid, self).__init__(name)
+        print('sigmoid %s\n' % (name), file=utils.log_file)
 
     def f(self, input):
         # return 1/(1 + math.exp(-input))
@@ -67,25 +64,22 @@ class Sigmoid(Layer):
         self._saved_for_backward(input)
         return self.f(input)
 
-        pass
-
     def backward(self, grad_output):
         '''Your codes here'''
         return np.multiply(grad_output, self.df(self._saved_tensor))
 
-        pass
-
 
 class Linear(Layer):
-    def __init__(self, name, in_num, out_num, init_std, activation_function=None):
+    def __init__(self, name, in_num, out_num, init_std):
         super(Linear, self).__init__(name, trainable=True)
 
-        print('layer %s : in_num = %d , out_num = %d , init_std = %d , activation_function = %s' %  (name, in_num, out_num, init_std, activation_function.name))
+        print('layer %s : in_num = %d , out_num = %d , init_std = %d' %  (name, in_num, out_num, init_std), file=utils.log_file)
 
         self.in_num = in_num
         self.out_num = out_num
         self.W = np.random.randn(in_num, out_num) * init_std
-        self.b = np.zeros(out_num)
+        # self.b = np.zeros(out_num)
+        self.b = np.random.randn(out_num) * init_std
 
         self.grad_W = np.zeros((in_num, out_num))
         self.grad_b = np.zeros(out_num)
@@ -93,30 +87,21 @@ class Linear(Layer):
         self.diff_W = np.zeros((in_num, out_num))
         self.diff_b = np.zeros(out_num)
 
-        self.activation_function = activation_function
 
     def forward(self, input):
         '''Your codes here'''
         self._saved_for_backward(input)
-        u = np.dot(input, self.W) + self.b
-        if self.activation_function is None:
-            return u
-        return self.activation_function.forward(u)
-
-        pass
+        # print(input.shape, self.W.shape, self.b.shape)
+        return np.dot(input, self.W) + self.b
 
     def backward(self, grad_output):
         '''Your codes here'''
+        # print(self.W[0], file=sys.stderr)
+        # print(grad_output[0][:4], file=sys.stderr)
         input = self._saved_tensor
-        grad_u = grad_output
-        if not(self.activation_function is None):
-            grad_u = self.activation_function.backward(grad_output)
-        grad_u_2 = np.dot(np.ones((1, input.shape[0])), grad_u)
-        self.grad_W = np.dot(np.transpose(input), grad_u) / input.shape[0]
-        self.grad_b = grad_u_2 / input.shape[0]
-        return np.dot(grad_u, np.transpose(self.W))
-
-        pass
+        self.grad_W = np.dot(np.transpose(input), grad_output) / input.shape[0]
+        self.grad_b = np.dot(np.ones((1, input.shape[0])), grad_output)[0] / input.shape[0]
+        return np.dot(grad_output, np.transpose(self.W))
 
     def update(self, config):
         mm = config['momentum']
@@ -128,3 +113,26 @@ class Linear(Layer):
 
         self.diff_b = mm * self.diff_b + (self.grad_b + wd * self.b)
         self.b = self.b - lr * self.diff_b
+
+
+class LeakyRelu(Layer):
+    def __init__(self, name='leakyrelu'):
+        super(LeakyRelu, self).__init__(name)
+        print('Leakyrelu %s\n' % (name), file=utils.log_file)
+
+    def f(self, input):
+        # return np.fmax(input, np.zeros(input.shape))
+        return np.fmax(input, input * 0.01)
+
+    def df(self, input):
+        # return (input > 0).astype(np.float64)
+        return (input > 0).astype(np.float64) + (input <= 0).astype(np.float64) * 0.01
+
+    def forward(self, input):
+        '''Your codes here'''
+        self._saved_for_backward(input)
+        return self.f(input)
+
+    def backward(self, grad_output):
+        '''Your codes here'''
+        return np.multiply(grad_output, self.df(self._saved_tensor))

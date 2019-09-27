@@ -2,7 +2,9 @@ from __future__ import division
 from __future__ import print_function
 import numpy as np
 from datetime import datetime
+import sys
 
+log_file = sys.stdout
 
 def onehot_encoding(label, max_num_class):
     encoding = np.eye(max_num_class)
@@ -18,4 +20,4 @@ def calculate_acc(output, label):
 def LOG_INFO(msg):
     now = datetime.now()
     display_now = str(now).split(' ')[1][:-3]
-    print(display_now + ' ' + msg)
+    print(display_now + ' ' + msg, file=log_file)
