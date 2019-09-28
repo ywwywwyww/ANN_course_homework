@@ -92,6 +92,8 @@ class Linear(Layer):
         self.diff_W = np.zeros((in_num, out_num))
         self.diff_b = np.zeros(out_num)
 
+        self.initial = 1
+
 
     def forward(self, input):
         '''Your codes here'''
@@ -113,10 +115,15 @@ class Linear(Layer):
         lr = config['learning_rate']
         wd = config['weight_decay']
 
-        self.diff_W = mm * self.diff_W + (self.grad_W + wd * self.W)
-        self.W = self.W - lr * self.diff_W
+        if self.initial:
+            self.diff_W = self.grad_W + wd * self.W
+            self.diff_b = self.grad_b + wd * self.b
+            self.initial = 0
+        else:
+            self.diff_W = mm * self.diff_W + (1 - mm) * (self.grad_W + wd * self.W)
+            self.diff_b = mm * self.diff_b + (1 - mm) * (self.grad_b + wd * self.b)
 
-        self.diff_b = mm * self.diff_b + (self.grad_b + wd * self.b)
+        self.W = self.W - lr * self.diff_W
         self.b = self.b - lr * self.diff_b
 
 

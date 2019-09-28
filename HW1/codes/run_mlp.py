@@ -49,7 +49,7 @@ config = {
     'learning_rate_b' : 20,
     'learning_rate': 0.01,
     'weight_decay': 0.0,
-    'momentum': 0.0,
+    'momentum': 0.9,
     'batch_size': 100,
     'max_epoch': 1000,
     'disp_freq': 600,
