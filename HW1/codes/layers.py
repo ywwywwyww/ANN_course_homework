@@ -99,8 +99,8 @@ class Linear(Layer):
         # print(self.W[0], file=sys.stderr)
         # print(grad_output[0][:6], file=sys.stderr)
         input = self._saved_tensor
-        self.grad_W = np.dot(np.transpose(input), grad_output) / input.shape[0]
-        self.grad_b = np.dot(np.ones((1, input.shape[0])), grad_output)[0] / input.shape[0]
+        self.grad_W = np.dot(np.transpose(input), grad_output)
+        self.grad_b = np.dot(np.ones((1, input.shape[0])), grad_output)[0]
         return np.dot(grad_output, np.transpose(self.W))
 
     def update(self, config):
@@ -136,3 +136,18 @@ class LeakyRelu(Layer):
     def backward(self, grad_output):
         '''Your codes here'''
         return np.multiply(grad_output, self.df(self._saved_tensor))
+
+class Normalization(Layer):
+    def __init__(self, name='normalization'):
+        super(Normalization, self).__init__(name)
+        print('normalization %s\n' % (name), file=utils.log_file)
+
+    def forward(self, input):
+        '''Your codes here'''
+        mean = np.mean(input, axis=1)
+        std = np.std(input, axis=1)
+        return np.divide((input - mean.reshape(input.shape[0], 1)), std.reshape(input.shape[0], 1))
+
+    def backward(self, grad_output):
+        '''Your codes here'''
+        return grad_output

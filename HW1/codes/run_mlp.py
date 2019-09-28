@@ -1,7 +1,7 @@
 from network import Network
 from utils import LOG_INFO
 import utils
-from layers import Relu, Sigmoid, Linear, LeakyRelu
+from layers import Relu, Sigmoid, Linear, LeakyRelu, Normalization
 from loss import EuclideanLoss, SoftmaxCrossEntropyLoss, CrossEntropyLoss
 from solve_net import train_net, test_net
 from load_data import load_mnist_2d
@@ -19,17 +19,18 @@ draw.plotfilename = 'log\\%04d_%02d_%02d_%02d_%02d_%02d' % (now.year, now.month,
 # Your model defintion here
 # You should explore different model architecture
 model = Network()
-model.add(Linear('fc1', 784, 100, 0.01))
-# model.add(Linear('fc1', 784, 100, math.sqrt(2 / 784)))
+# model.add(Normalization())
+# model.add(Linear('fc1', 784, 100, 0.01))
+model.add(Linear('fc1', 784, 100, math.sqrt(2 / 784)))
 model.add(Relu())
 # model.add(Sigmoid())
 # model.add(LeakyRelu())
-model.add(Linear('fc2', 100, 100, 0.01))
-# model.add(Linear('fc2', 100, 100, math.sqrt(2 / 100)))
+# model.add(Linear('fc2', 100, 100, 0.01))
+model.add(Linear('fc2', 100, 100, math.sqrt(2 / 100)))
 model.add(Relu())
 # model.add(Sigmoid())
-model.add(Linear('fc3', 100, 10, 0.01))
-# model.add(Linear('fc3', 100, 10, math.sqrt(2 / 100)))
+# model.add(Linear('fc3', 100, 10, 0.01))
+model.add(Linear('fc3', 100, 10, math.sqrt(2 / 100)))
 # model.add(Relu())
 # model.add(Sigmoid())
 
@@ -76,7 +77,7 @@ for epoch in range(config['max_epoch']):
     print('epoch %d finished , total = %d , training loss = %.5f , training acc = %.5f , test loss = %.5f , test acc = %.5f' % (epoch, config['max_epoch'], train_loss, train_acc, test_loss, test_acc), file=stderr)
 
     draw.plot.add_test((epoch + 1) * (config['training_set_size'] / config['batch_size']), test_loss, test_acc)
-    # draw.plot.add_training((epoch + 1) * (config['training_set_size'] / config['batch_size']), train_loss, train_acc)
+    draw.plot.add_training((epoch + 1) * (config['training_set_size'] / config['batch_size']), train_loss, train_acc)
 
     draw.plot.draw()
 

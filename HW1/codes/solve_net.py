@@ -50,7 +50,7 @@ def train_net(model, loss, config, inputs, labels, batch_size, disp_freq):
 
         # print(iter_cnt)
 
-        draw.plot.add_training(iter_cnt, np.mean(loss_value), acc_value)
+        # draw.plot.add_training(iter_cnt, np.mean(loss_value), acc_value)
 
 
         if iter_counter % disp_freq == 0:

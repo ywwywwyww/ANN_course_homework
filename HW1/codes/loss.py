@@ -8,13 +8,13 @@ class EuclideanLoss(object):
 
     def forward(self, input, target):
         '''Your codes here'''
-        return np.dot(np.multiply(input - target, input - target), np.ones((input.shape[1], 1))) / (2 * input.shape[1])
+        return np.sum(np.multiply(input - target, input - target)) / (2 * input.shape[0])
 
         pass
 
     def backward(self, input, target):
         '''Your codes here'''
-        return (input - target) / input.shape[1]
+        return (input - target) / input.shape[0]
 
 
 class SoftmaxCrossEntropyLoss(object):
@@ -26,13 +26,16 @@ class SoftmaxCrossEntropyLoss(object):
         exp_input = np.exp(input)
         exp_input_sum = np.dot(exp_input, np.ones((exp_input.shape[1], 1)))
         output = np.divide(exp_input, exp_input_sum)
-        loss = -(np.multiply(target, np.log(output))+np.multiply(1-target, np.log(1-output))) / input.shape[1]
+        loss = np.sum(-(np.multiply(target, np.log(output)))) / input.shape[0]
         return loss
 
 
     def backward(self, input, target):
         '''Your codes here'''
-        return (input - target) / input.shape[1]
+        exp_input = np.exp(input)
+        exp_input_sum = np.dot(exp_input, np.ones((exp_input.shape[1], 1)))
+        output = np.divide(exp_input, exp_input_sum)
+        return (output - target) / input.shape[0]
 
 
 class CrossEntropyLoss(object):
