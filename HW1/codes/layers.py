@@ -70,8 +70,13 @@ class Sigmoid(Layer):
 
 
 class Linear(Layer):
-    def __init__(self, name, in_num, out_num, init_std):
+    def __init__(self, name, in_num, out_num, init_std = 0, activation_function = ''):
         super(Linear, self).__init__(name, trainable=True)
+
+        if activation_function == 'Relu' or activation_function == 'relu':
+            init_std = math.sqrt(4 / (in_num + out_num))
+        elif activation_function == 'Sigmoid' or activation_function == 'sigmoid':
+            init_std = math.sqrt(2 / (in_num + out_num))
 
         print('layer %s : in_num = %d , out_num = %d , init_std = %.5f' %  (name, in_num, out_num, init_std), file=utils.log_file)
 
