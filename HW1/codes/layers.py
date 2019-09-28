@@ -92,7 +92,7 @@ class Linear(Layer):
         self.diff_W = np.zeros((in_num, out_num))
         self.diff_b = np.zeros(out_num)
 
-        self.initial = 1
+        self.initial = 0
 
 
     def forward(self, input):

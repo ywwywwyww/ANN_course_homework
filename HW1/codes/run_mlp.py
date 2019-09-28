@@ -19,17 +19,16 @@ draw.plotfilename = 'log\\%04d_%02d_%02d_%02d_%02d_%02d' % (now.year, now.month,
 # Your model defintion here
 # You should explore different model architecture
 model = Network()
-# model.add(Normalization())
-model.add(Linear('fc1', 784, 100, activation_function='Relu'))
+model.add(Normalization())
+model.add(Linear('fc1', 784, 500, activation_function='Relu'))
 model.add(Relu())
-# model.add(Sigmoid())
-# model.add(LeakyRelu())
-model.add(Linear('fc2', 100, 100, activation_function='Relu'))
+model.add(Linear('fc2', 500, 200, activation_function='Relu'))
 model.add(Relu())
-# model.add(Sigmoid())
-model.add(Linear('fc3', 100, 10, activation_function='Relu'))
-# model.add(Relu())
-# model.add(Sigmoid())
+model.add(Linear('fc3', 200, 100, activation_function='Relu'))
+model.add(Relu())
+model.add(Linear('fc4', 100, 100, activation_function='Relu'))
+model.add(Relu())
+model.add(Linear('fc5', 100, 10, activation_function='Relu'))
 
 # loss = CrossEntropyLoss(name='CrossEntropyLoss')
 loss = SoftmaxCrossEntropyLoss(name='SoftmaxCrossEntropyLoss')
@@ -48,8 +47,8 @@ config = {
     'learning_rate_a' : 10,
     'learning_rate_b' : 20,
     'learning_rate': 0.01,
-    'weight_decay': 0.0,
-    'momentum': 0.9,
+    'weight_decay': 0.01,
+    'momentum': 0.95,
     'batch_size': 100,
     'max_epoch': 1000,
     'disp_freq': 600,
