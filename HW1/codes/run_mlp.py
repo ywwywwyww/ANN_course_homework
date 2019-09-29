@@ -1,7 +1,7 @@
 from network import Network
 from utils import LOG_INFO
 import utils
-from layers import Relu, Sigmoid, Linear, LeakyRelu, Normalization
+from layers import Relu, Sigmoid, Linear, LeakyRelu, Normalization, Tanh
 from loss import EuclideanLoss, SoftmaxCrossEntropyLoss, CrossEntropyLoss
 from solve_net import train_net, test_net
 from load_data import load_mnist_2d
@@ -20,9 +20,10 @@ draw.plotfilename = 'log\\%04d_%02d_%02d_%02d_%02d_%02d' % (now.year, now.month,
 # You should explore different model architecture
 model = Network()
 model.add(Normalization())
-model.add(Linear('fc1', 784, 100, activation_function='Relu'))
-model.add(Relu()) 
-model.add(Linear('fc2', 100, 10, activation_function='Relu'))
+model.add(Linear('fc1', 784, 100, activation_function='Tanh'))
+model.add(Tanh())
+model.add(Linear('fc2', 100, 10, activation_function='Tanh'))
+model.add(Tanh())
 
 # loss = CrossEntropyLoss(name='CrossEntropyLoss')
 loss = SoftmaxCrossEntropyLoss(name='SoftmaxCrossEntropyLoss')

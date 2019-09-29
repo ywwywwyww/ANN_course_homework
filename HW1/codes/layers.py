@@ -77,6 +77,8 @@ class Linear(Layer):
             init_std = math.sqrt(4 / (in_num + out_num))
         elif activation_function == 'Sigmoid' or activation_function == 'sigmoid':
             init_std = math.sqrt(2 / (in_num + out_num))
+        elif activation_function == 'Tanh' or activation_function == 'tanh':
+            init_std = math.sqrt(2 / (in_num + out_num))
 
         print('layer %s : in_num = %d , out_num = %d , init_std = %.5f' %  (name, in_num, out_num, init_std), file=utils.log_file)
 
@@ -163,3 +165,26 @@ class Normalization(Layer):
     def backward(self, grad_output):
         '''Your codes here'''
         return grad_output
+
+class Tanh(Layer):
+    def __init__(self, name='tanh'):
+        super(Tanh, self).__init__(name)
+        print('tanh %s\n' % (name), file=utils.log_file)
+
+    def f(self, input):
+        ex = np.exp(input)
+        enx = np.divide(np.ones(ex.shape), ex)
+        return np.divide(ex - enx, ex + enx)
+
+    def df(self, input):
+        fx = self.f(input)
+        return 1 - fx * fx
+
+    def forward(self, input):
+        '''Your codes here'''
+        self._saved_for_backward(input)
+        return self.f(input)
+
+    def backward(self, grad_output):
+        '''Your codes here'''
+        return np.multiply(grad_output, self.df(self._saved_tensor))
