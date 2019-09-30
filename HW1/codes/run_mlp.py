@@ -41,13 +41,17 @@ config = {
     'test_set_size' : 10000,
     'learning_rate_a' : 10,
     'learning_rate_b' : 20,
-    'learning_rate': 0.01,
+    'learning_rate': 0.001,
+    'eps' : 1e-8,
+    'beta_1' : 0.9,
+    'beta_2' : 0.999,
     'weight_decay': 0.0,
     'momentum': 0.0,
     'batch_size': 100,
     'max_epoch': 1000,
     'disp_freq': 600,
-    'test_epoch': 1
+    'test_epoch': 1,
+    'iterations' : 0
 }
 
 print(config, file=utils.log_file)

@@ -48,7 +48,6 @@ class Sigmoid(Layer):
         super(Sigmoid, self).__init__(name)
 
     def f(self, input):
-        # return 1/(1 + math.exp(-input))
         return 1/(1 + np.exp(-input))
 
     def df(self, input):

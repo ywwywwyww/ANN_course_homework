@@ -27,6 +27,12 @@ def train_net(model, loss, config, inputs, labels, batch_size, disp_freq):
         target = onehot_encoding(label, 10)
         iter_counter += 1
 
+
+        global iter_cnt
+        iter_cnt = iter_cnt + 1
+
+        config['iterations'] = iter_cnt
+
         # forward net
         output = model.forward(input)
         # calculate loss
@@ -45,8 +51,6 @@ def train_net(model, loss, config, inputs, labels, batch_size, disp_freq):
 
         training_acc += acc_value
 
-        global iter_cnt
-        iter_cnt = iter_cnt + 1
 
         # print(iter_cnt)
 

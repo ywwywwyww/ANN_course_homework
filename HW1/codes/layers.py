@@ -96,6 +96,11 @@ class Linear(Layer):
 
         self.initial = 0
 
+        self.m_W = np.zeros((in_num, out_num))
+        self.v_W = np.zeros((in_num, out_num))
+        self.m_b = np.zeros(out_num)
+        self.v_b = np.zeros(out_num)
+
 
     def forward(self, input):
         '''Your codes here'''
@@ -117,16 +122,33 @@ class Linear(Layer):
         lr = config['learning_rate']
         wd = config['weight_decay']
 
-        if self.initial:
-            self.diff_W = self.grad_W + wd * self.W
-            self.diff_b = self.grad_b + wd * self.b
-            self.initial = 0
-        else:
-            self.diff_W = mm * self.diff_W + (1 - mm) * (self.grad_W + wd * self.W)
-            self.diff_b = mm * self.diff_b + (1 - mm) * (self.grad_b + wd * self.b)
+        # if self.initial:
+        #     self.diff_W = self.grad_W + wd * self.W
+        #     self.diff_b = self.grad_b + wd * self.b
+        #     self.initial = 0
+        # else:
+        #     self.diff_W = mm * self.diff_W + (1 - mm) * (self.grad_W + wd * self.W)
+        #     self.diff_b = mm * self.diff_b + (1 - mm) * (self.grad_b + wd * self.b)
+        #
+        # self.W = self.W - lr * self.diff_W
+        # self.b = self.b - lr * self.diff_b
 
-        self.W = self.W - lr * self.diff_W
-        self.b = self.b - lr * self.diff_b
+        beta_1 = config['beta_1']
+        beta_2 = config['beta_2']
+        iterations = config['iterations']
+        eps = config['eps']
+
+        self.m_W = beta_1 * self.m_W + (1 - beta_1) * self.grad_W
+        self.v_W = beta_2 * self.v_W + (1 - beta_2) * self.grad_W * self.grad_W
+        m_W_ = self.m_W / (1 - beta_1 ** iterations)
+        v_W_ = self.v_W / (1 - beta_2 ** iterations)
+        self.W = self.W - lr * m_W_ / (np.sqrt(v_W_) + eps)
+
+        self.m_b = beta_1 * self.m_b + (1 - beta_1) * self.grad_b
+        self.v_b = beta_2 * self.v_b + (1 - beta_2) * self.grad_b * self.grad_b
+        m_b_ = self.m_b / (1 - beta_1 ** iterations)
+        v_b_ = self.v_b / (1 - beta_2 ** iterations)
+        self.b = self.b - lr * m_b_ / (np.sqrt(v_b_) + eps)
 
 
 class LeakyRelu(Layer):
