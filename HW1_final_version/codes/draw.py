@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-plotfilename = 'log\one_hidden_layer_sigmoid_cross_entropy_'
+plotfilename = 'log\one_hidden_layer_relu_cross_entropy_'
 
 class draw_plot(object):
     def __init__(self):

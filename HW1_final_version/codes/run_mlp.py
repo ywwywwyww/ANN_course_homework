@@ -14,8 +14,8 @@ train_data, test_data, train_label, test_label = load_mnist_2d('data')
 # You should explore different model architecture
 model = Network()
 model.add(Linear('fc1', 784, 100, sqrt(1 / 784)))
-model.add(Sigmoid(name="Sigmoid"))
-# model.add(Relu(name="Relu"))
+# model.add(Sigmoid(name="Sigmoid"))
+model.add(Relu(name="Relu"))
 model.add(Linear('fc2', 100, 10, sqrt(1 / 100)))
 # model.add(Sigmoid(name="Sigmoid"))
 
@@ -33,7 +33,7 @@ config = {
     'weight_decay': 0.0,
     'momentum': 0.9,
     'batch_size': 100,
-    'max_epoch': 200,
+    'max_epoch': 100,
     'disp_freq': 600,
     'test_epoch': 1
 }
