@@ -8,21 +8,22 @@ from load_data import load_mnist_2d
 from sys import stderr
 from datetime import datetime
 import draw
+import numpy as np
 import math
 
 train_data, test_data, train_label, test_label = load_mnist_2d('data')
 
 now = datetime.now()
 utils.log_file = open('log\\%04d_%02d_%02d_%02d_%02d_%02d.txt' % (now.year, now.month, now.day, now.hour, now.minute, now.second), "w")
-draw.plotfilename = 'log\\%04d_%02d_%02d_%02d_%02d_%02d' % (now.year, now.month, now.day, now.hour, now.minute, now.second)
+draw.plotfilename = 'log\\%04d_%02d_%02d_%02d_%02d_%02d_' % (now.year, now.month, now.day, now.hour, now.minute, now.second)
 
 # Your model defintion here
 # You should explore different model architecture
 model = Network()
-# model.add(Normalization())
+model.add(Normalization())
 model.add(Linear('fc1', 784, 100, activation_function='Relu'))
 # model.add(Sigmoid())
-model.add(Relu)
+model.add(Relu())
 model.add(Linear('fc2', 100, 10, activation_function='Relu'))
 # model.add(Sigmoid())
 
@@ -42,7 +43,7 @@ config = {
     'test_set_size' : 10000,
     'learning_rate_a' : 10,
     'learning_rate_b' : 20,
-    'learning_rate': 0.001,
+    'learning_rate': 0.0001,
     'eps' : 1e-8,
     'beta_1' : 0.9,
     'beta_2' : 0.999,
@@ -52,8 +53,15 @@ config = {
     'max_epoch': 1000,
     'disp_freq': 600,
     'test_epoch': 1,
-    'iterations' : 0
+    'iterations' : 0,
+    'factor' : 0.2,
+    'patience' : 3
 }
+
+iters_per_epoch = (config['training_set_size'] / config['batch_size'])
+
+history_loss = []
+history_min = 1e10
 
 print(config, file=utils.log_file)
 
@@ -72,8 +80,17 @@ for epoch in range(config['max_epoch']):
 
     print('epoch %d finished , total = %d , training loss = %.5f , training acc = %.5f , test loss = %.5f , test acc = %.5f' % (epoch, config['max_epoch'], train_loss, train_acc, test_loss, test_acc), file=stderr)
 
-    draw.plot.add_test((epoch + 1) * (config['training_set_size'] / config['batch_size']), test_loss, test_acc)
-    draw.plot.add_training((epoch + 1) * (config['training_set_size'] / config['batch_size']), train_loss, train_acc)
+    draw.plot.add_test((epoch + 1) * iters_per_epoch, test_loss, test_acc)
+    draw.plot.add_training((epoch + 1) * iters_per_epoch, train_loss, train_acc)
+
+
+    history_loss.append(test_loss)
+    history_min = min(history_min, test_loss)
+    if history_loss.__len__() >= config['patience'] and np.min(history_loss[-config['patience']:]) > history_min:
+        history_loss.clear()
+        config['learning_rate'] = config['learning_rate'] * config['factor']
+
+    draw.plot.add_learning_rate((epoch + 1) * iters_per_epoch, config['learning_rate'])
 
     draw.plot.draw()
 

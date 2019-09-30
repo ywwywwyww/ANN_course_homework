@@ -5,6 +5,7 @@ import draw
 iter_cnt = 0
 
 
+
 def data_iterator(x, y, batch_size, shuffle=True):
     indx = list(range(len(x)))
     if shuffle:
@@ -22,6 +23,7 @@ def train_net(model, loss, config, inputs, labels, batch_size, disp_freq):
     acc_list = []
 
     training_acc = 0
+    training_loss = 0
 
     for input, label in data_iterator(inputs, labels, batch_size):
         target = onehot_encoding(label, 10)
@@ -50,8 +52,7 @@ def train_net(model, loss, config, inputs, labels, batch_size, disp_freq):
         acc_list.append(acc_value)
 
         training_acc += acc_value
-
-
+        training_loss += loss_value
         # print(iter_cnt)
 
         # draw.plot.add_training(iter_cnt, np.mean(loss_value), acc_value)
@@ -63,7 +64,17 @@ def train_net(model, loss, config, inputs, labels, batch_size, disp_freq):
             acc_list = []
             LOG_INFO(msg)
 
-    return training_acc / (inputs.shape[0] / config['batch_size'])
+    training_acc /= (inputs.shape[0] / config['batch_size'])
+    training_loss /= (inputs.shape[0] / config['batch_size'])
+
+    # history_loss.append(training_loss)
+    # if history_loss.__len__() >= config['patience'] and training_loss > np.min(history_loss[-config['patience']:]):
+    #     history_loss.clear()
+    #     config['learning_rate'] = config['learning_rate'] * config['factor']
+    #
+    # draw.plot.add_learning_rate(iter_cnt, config['learning_rate'])
+
+    return training_acc
 
 
 def test_net(model, loss, inputs, labels, batch_size):

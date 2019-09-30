@@ -49,4 +49,4 @@ for epoch in range(config['max_epoch']):
         plot.add_training((epoch + 1) * train_data.shape[0] // config['batch_size'], training_loss, training_acc)
         plot.add_test((epoch + 1) * train_data.shape[0] // config['batch_size'], test_loss, test_acc)
 
-plot.draw()
+    plot.draw()
