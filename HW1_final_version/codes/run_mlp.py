@@ -33,7 +33,7 @@ config = {
     'weight_decay': 0.0,
     'momentum': 0.0,
     'batch_size': 100,
-    'max_epoch': 1000,
+    'max_epoch': 100,
     'disp_freq': 600,
     'test_epoch': 1
 }

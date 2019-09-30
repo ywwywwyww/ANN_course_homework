@@ -43,7 +43,7 @@ config = {
     'test_set_size' : 10000,
     'learning_rate_a' : 10,
     'learning_rate_b' : 20,
-    'learning_rate': 0.0001,
+    'learning_rate': 0.1,
     'eps' : 1e-8,
     'beta_1' : 0.9,
     'beta_2' : 0.999,
@@ -78,7 +78,7 @@ for epoch in range(config['max_epoch']):
         test_loss, test_acc = test_net(model, loss, test_data, test_label, config['test_set_size'])
         train_loss, train_acc = test_net(model, loss, train_data, train_label, config['training_set_size'])
 
-    print('epoch %d finished , total = %d , training loss = %.5f , training acc = %.5f , test loss = %.5f , test acc = %.5f' % (epoch, config['max_epoch'], train_loss, train_acc, test_loss, test_acc), file=stderr)
+    print('epoch %d finished , total = %d , training loss = %.5f , training acc = %.5f , test loss = %.5f , test acc = %.5f , learning rate = %.10f' % (epoch, config['max_epoch'], train_loss, train_acc, test_loss, test_acc, config['learning_rate']), file=stderr)
 
     draw.plot.add_test((epoch + 1) * iters_per_epoch, test_loss, test_acc)
     draw.plot.add_training((epoch + 1) * iters_per_epoch, train_loss, train_acc)
@@ -86,7 +86,7 @@ for epoch in range(config['max_epoch']):
 
     history_loss.append(test_loss)
     history_min = min(history_min, test_loss)
-    if history_loss.__len__() >= config['patience'] and np.min(history_loss[-config['patience']:]) > history_min:
+    if history_loss.__len__() >= config['patience'] and np.min(history_loss[-config['patience']:]) > history_min + 1e-10:
         history_loss.clear()
         config['learning_rate'] = config['learning_rate'] * config['factor']
 
