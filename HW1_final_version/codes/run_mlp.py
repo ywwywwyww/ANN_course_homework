@@ -13,14 +13,14 @@ train_data, test_data, train_label, test_label = load_mnist_2d('data')
 # Your model defintion here
 # You should explore different model architecture
 model = Network()
-model.add(Linear('fc1', 784, 100, sqrt(2 / (784 + 100))))
+model.add(Linear('fc1', 784, 100, sqrt(1 / 784)))
 model.add(Sigmoid(name="Sigmoid"))
 # model.add(Relu(name="Relu"))
-model.add(Linear('fc2', 100, 10, sqrt(2 / (100 + 10))))
-model.add(Sigmoid(name="Sigmoid"))
+model.add(Linear('fc2', 100, 10, sqrt(1 / 100)))
+# model.add(Sigmoid(name="Sigmoid"))
 
-loss = EuclideanLoss(name='loss')
-# loss = SoftmaxCrossEntropyLoss(name='loss')
+# loss = EuclideanLoss(name='loss')
+loss = SoftmaxCrossEntropyLoss(name='loss')
 
 # Training configuration
 # You should adjust these hyperparameters
@@ -29,11 +29,11 @@ loss = EuclideanLoss(name='loss')
 #       'disp_freq' denotes number of iterations in one epoch to display information.
 
 config = {
-    'learning_rate': 0.01,
+    'learning_rate': 0.1,
     'weight_decay': 0.0,
-    'momentum': 0.0,
+    'momentum': 0.9,
     'batch_size': 100,
-    'max_epoch': 100,
+    'max_epoch': 200,
     'disp_freq': 600,
     'test_epoch': 1
 }
