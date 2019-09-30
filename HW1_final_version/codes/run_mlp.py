@@ -27,7 +27,7 @@ loss = EuclideanLoss(name='loss')
 #       'disp_freq' denotes number of iterations in one epoch to display information.
 
 config = {
-    'learning_rate': 0.01,
+    'learning_rate': 0.1,
     'weight_decay': 0.0,
     'momentum': 0.0,
     'batch_size': 100,

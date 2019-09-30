@@ -17,6 +17,12 @@ class draw_plot(object):
         self.iterations = iterations
 
     def draw(self):
+        training_log_file = open(plotfilename + "training.txt")
+        for i in range(0, self.training_set_iterations.__len__()):
+            print(self.training_set_iterations[i], self.training_set_loss[i], self.training_set_accuracy[i], file=training_log_file)
+        test_log_file = open(plotfilename + "test.txt")
+        for i in range(0, self.test_set_iterations.__len__()):
+            print(self.test_set_iterations[i], self.test_set_loss[i], self.test_set_accuracy[i], file=test_log_file)
         plt.title("Loss During Training")
         plt.xlabel("Training Iterations")
         plt.ylabel("Loss")
