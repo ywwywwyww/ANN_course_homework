@@ -18,9 +18,10 @@ model.add(Linear('fc1', 784, 100, sqrt(1 / 784)))
 model.add(Relu(name="Relu"))
 model.add(Linear('fc2', 100, 10, sqrt(1 / 100)))
 # model.add(Sigmoid(name="Sigmoid"))
+model.add(Relu(name="Relu"))
 
-# loss = EuclideanLoss(name='loss')
-loss = SoftmaxCrossEntropyLoss(name='loss')
+loss = EuclideanLoss(name='loss')
+# loss = SoftmaxCrossEntropyLoss(name='loss')
 
 # Training configuration
 # You should adjust these hyperparameters
