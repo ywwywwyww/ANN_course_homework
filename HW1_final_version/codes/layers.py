@@ -27,26 +27,42 @@ class Relu(Layer):
     def __init__(self, name):
         super(Relu, self).__init__(name)
 
+    def f(self, input):
+        return np.fmax(input, np.zeros(input.shape))
+
+    def df(self, input):
+        return (input >= 0).astype(np.float64)
+
     def forward(self, input):
         '''Your codes here'''
-        pass
+        self._saved_for_backward(input)
+        return self.f(input)
 
     def backward(self, grad_output):
         '''Your codes here'''
-        pass
+        return np.multiply(grad_output, self.df(self._saved_tensor))
 
 
 class Sigmoid(Layer):
     def __init__(self, name):
         super(Sigmoid, self).__init__(name)
 
+    def f(self, input):
+        # return 1/(1 + math.exp(-input))
+        return 1/(1 + np.exp(-input))
+
+    def df(self, input):
+        fx = self.f(input)
+        return np.multiply(fx, (1 - fx))
+
     def forward(self, input):
         '''Your codes here'''
-        pass
+        self._saved_for_backward(input)
+        return self.f(input)
 
     def backward(self, grad_output):
         '''Your codes here'''
-        pass
+        return np.multiply(grad_output, self.df(self._saved_tensor))
 
 
 class Linear(Layer):
@@ -65,11 +81,15 @@ class Linear(Layer):
 
     def forward(self, input):
         '''Your codes here'''
-        pass
+        self._saved_for_backward(input)
+        return np.dot(input, self.W) + self.b
 
     def backward(self, grad_output):
         '''Your codes here'''
-        pass
+        input = self._saved_tensor
+        self.grad_W = np.dot(np.transpose(input), grad_output)
+        self.grad_b = np.dot(np.ones((1, input.shape[0])), grad_output)[0]
+        return np.dot(grad_output, np.transpose(self.W))
 
     def update(self, config):
         mm = config['momentum']
