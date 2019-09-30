@@ -137,18 +137,21 @@ class Linear(Layer):
         beta_2 = config['beta_2']
         iterations = config['iterations']
         eps = config['eps']
+        lr_t = lr * math.sqrt(1 - beta_2 ** iterations) / (1 - beta_1 ** iterations)
 
         self.m_W = beta_1 * self.m_W + (1 - beta_1) * self.grad_W
         self.v_W = beta_2 * self.v_W + (1 - beta_2) * self.grad_W * self.grad_W
-        m_W_ = self.m_W / (1 - beta_1 ** iterations)
-        v_W_ = self.v_W / (1 - beta_2 ** iterations)
-        self.W = self.W - lr * m_W_ / (np.sqrt(v_W_) + eps)
+        # m_W_ = self.m_W / (1 - beta_1 ** iterations)
+        # v_W_ = self.v_W / (1 - beta_2 ** iterations)
+        # self.W = self.W - lr * m_W_ / (np.sqrt(v_W_) + eps)
+        self.W = self.W - lr_t * self.m_W / (np.sqrt(self.v_W + eps))
 
         self.m_b = beta_1 * self.m_b + (1 - beta_1) * self.grad_b
         self.v_b = beta_2 * self.v_b + (1 - beta_2) * self.grad_b * self.grad_b
-        m_b_ = self.m_b / (1 - beta_1 ** iterations)
-        v_b_ = self.v_b / (1 - beta_2 ** iterations)
-        self.b = self.b - lr * m_b_ / (np.sqrt(v_b_) + eps)
+        # m_b_ = self.m_b / (1 - beta_1 ** iterations)
+        # v_b_ = self.v_b / (1 - beta_2 ** iterations)
+        # self.b = self.b - lr * m_b_ / (np.sqrt(v_b_) + eps)
+        self.b = self.b - lr_t * self.m_b / (np.sqrt(self.v_b + eps))
 
 
 class LeakyRelu(Layer):
