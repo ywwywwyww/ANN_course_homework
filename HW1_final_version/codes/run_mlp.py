@@ -31,11 +31,10 @@ config = {
     'weight_decay': 0.0,
     'momentum': 0.0,
     'batch_size': 100,
-    'max_epoch': 1,
+    'max_epoch': 1000,
     'disp_freq': 600,
     'test_epoch': 1
 }
-
 
 for epoch in range(config['max_epoch']):
     LOG_INFO('Training @ %d epoch...' % (epoch))
@@ -46,6 +45,6 @@ for epoch in range(config['max_epoch']):
         training_loss, training_acc = test_net(model, loss, train_data, train_label, train_data.shape[0])
         test_loss, test_acc = test_net(model, loss, test_data, test_label, test_data.shape[0])
         plot.add_training((epoch + 1) * train_data.shape[0] // config['batch_size'], training_loss, training_acc)
-        plot.add_training((epoch + 1) * train_data.shape[0] // config['batch_size'], test_loss, test_acc)
+        plot.add_test((epoch + 1) * train_data.shape[0] // config['batch_size'], test_loss, test_acc)
 
 plot.draw()
