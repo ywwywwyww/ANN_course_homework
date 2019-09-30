@@ -1,6 +1,5 @@
 from utils import LOG_INFO, onehot_encoding, calculate_acc
 import numpy as np
-from draw import plot
 
 
 def data_iterator(x, y, batch_size, shuffle=True):
@@ -45,8 +44,6 @@ def train_net(model, loss, config, inputs, labels, batch_size, disp_freq):
             acc_list = []
             LOG_INFO(msg)
 
-        plot.add_training(iter_counter, loss_value, acc_value)
-
 
 def test_net(model, loss, inputs, labels, batch_size):
     loss_list = []
@@ -62,5 +59,4 @@ def test_net(model, loss, inputs, labels, batch_size):
 
     msg = '    Testing, total mean loss %.5f, total acc %.5f' % (np.mean(loss_list), np.mean(acc_list))
     LOG_INFO(msg)
-
-    plot.add_test(0, np.mean(loss_list), np.mean(acc_list))
+    return (np.mean(loss_list), np.mean(acc_list))

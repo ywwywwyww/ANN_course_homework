@@ -85,8 +85,8 @@ class Linear(Layer):
         self.in_num = in_num
         self.out_num = out_num
         self.W = np.random.randn(in_num, out_num) * init_std
-        # self.b = np.zeros(out_num)
-        self.b = np.random.randn(out_num)
+        self.b = np.zeros(out_num)
+        # self.b = np.random.randn(out_num)
 
         self.grad_W = np.zeros((in_num, out_num))
         self.grad_b = np.zeros(out_num)

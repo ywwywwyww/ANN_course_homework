@@ -36,9 +36,6 @@ class draw_plot(object):
         plt.savefig(plotfilename + "acc.png")
         plt.clf()
 
-    def __del__(self):
-        self.draw()
-
     def add_training(self, iterations, loss, acc):
         self.training_set_iterations.append(iterations + self.iterations)
         self.training_set_loss.append(loss)

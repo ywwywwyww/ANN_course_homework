@@ -5,6 +5,7 @@ from loss import EuclideanLoss
 from solve_net import train_net, test_net
 from load_data import load_mnist_2d
 from math import sqrt
+from draw import plot
 
 
 train_data, test_data, train_label, test_label = load_mnist_2d('data')
@@ -30,7 +31,7 @@ config = {
     'weight_decay': 0.0,
     'momentum': 0.0,
     'batch_size': 100,
-    'max_epoch': 100,
+    'max_epoch': 1,
     'disp_freq': 600,
     'test_epoch': 1
 }
@@ -42,4 +43,9 @@ for epoch in range(config['max_epoch']):
 
     if epoch % config['test_epoch'] == 0:
         LOG_INFO('Testing @ %d epoch...' % (epoch))
-        test_net(model, loss, test_data, test_label, test_data.shape[0])
+        training_loss, training_acc = test_net(model, loss, train_data, train_label, train_data.shape[0])
+        test_loss, test_acc = test_net(model, loss, test_data, test_label, test_data.shape[0])
+        plot.add_training((epoch + 1) * train_data.shape[0] // config['batch_size'], training_loss, training_acc)
+        plot.add_training((epoch + 1) * train_data.shape[0] // config['batch_size'], test_loss, test_acc)
+
+plot.draw()
