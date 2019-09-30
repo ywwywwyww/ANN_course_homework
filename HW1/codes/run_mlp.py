@@ -20,14 +20,15 @@ draw.plotfilename = 'log\\%04d_%02d_%02d_%02d_%02d_%02d' % (now.year, now.month,
 # You should explore different model architecture
 model = Network()
 # model.add(Normalization())
-model.add(Linear('fc1', 784, 100, activation_function='Sigmoid'))
-model.add(Sigmoid())
-model.add(Linear('fc2', 100, 10, activation_function='Sigmoid'))
-model.add(Sigmoid())
+model.add(Linear('fc1', 784, 100, activation_function='Relu'))
+# model.add(Sigmoid())
+model.add(Relu)
+model.add(Linear('fc2', 100, 10, activation_function='Relu'))
+# model.add(Sigmoid())
 
 # loss = CrossEntropyLoss(name='CrossEntropyLoss')
-# loss = SoftmaxCrossEntropyLoss(name='SoftmaxCrossEntropyLoss')
-loss = EuclideanLoss(name='EuclideanLoss')
+loss = SoftmaxCrossEntropyLoss(name='SoftmaxCrossEntropyLoss')
+# loss = EuclideanLoss(name='EuclideanLoss')
 print('loss_function : %s' % (loss.name), file=utils.log_file)
 
 # Training configuration

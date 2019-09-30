@@ -1,7 +1,7 @@
 from network import Network
 from utils import LOG_INFO
 from layers import Relu, Sigmoid, Linear
-from loss import EuclideanLoss
+from loss import EuclideanLoss, SoftmaxCrossEntropyLoss
 from solve_net import train_net, test_net
 from load_data import load_mnist_2d
 from math import sqrt
@@ -14,11 +14,13 @@ train_data, test_data, train_label, test_label = load_mnist_2d('data')
 # You should explore different model architecture
 model = Network()
 model.add(Linear('fc1', 784, 100, sqrt(2 / (784 + 100))))
-model.add(Sigmoid(name="Sigmoid"))
+# model.add(Sigmoid(name="Sigmoid"))
+model.add(Relu(name="Relu"))
 model.add(Linear('fc2', 100, 10, sqrt(2 / (100 + 10))))
-model.add(Sigmoid(name="Sigmoid"))
+# model.add(Sigmoid(name="Sigmoid"))
 
-loss = EuclideanLoss(name='loss')
+# loss = EuclideanLoss(name='loss')
+loss = SoftmaxCrossEntropyLoss(name='loss')
 
 # Training configuration
 # You should adjust these hyperparameters
