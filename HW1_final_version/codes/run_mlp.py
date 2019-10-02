@@ -6,22 +6,26 @@ from solve_net import train_net, test_net
 from load_data import load_mnist_2d
 from math import sqrt
 from draw import plot
-
+from layers import Normalization
 
 train_data, test_data, train_label, test_label = load_mnist_2d('data')
 
 # Your model defintion here
 # You should explore different model architecture
 model = Network()
-model.add(Linear('fc1', 784, 100, sqrt(1 / 784)))
-model.add(Sigmoid(name="Sigmoid"))
-# model.add(Relu(name="Relu"))
-model.add(Linear('fc2', 100, 10, sqrt(1 / 100)))
-model.add(Sigmoid(name="Sigmoid"))
+model.add(Normalization())
+model.add(Linear('fc1', 784, 200, sqrt(1 / 784)))
+# model.add(Sigmoid(name="Sigmoid"))
+model.add(Relu(name="Relu"))
+model.add(Linear('fc2', 200, 100, sqrt(1 / 200)))
+# model.add(Sigmoid(name="Sigmoid"))
+model.add(Relu(name="Relu"))
+model.add(Linear('fc3', 100, 10, sqrt(1 / 100)))
+# model.add(Sigmoid(name="Sigmoid"))
 # model.add(Relu(name="Relu"))
 
-loss = EuclideanLoss(name='loss')
-# loss = SoftmaxCrossEntropyLoss(name='loss')
+# loss = EuclideanLoss(name='loss')
+loss = SoftmaxCrossEntropyLoss(name='loss')
 
 # Training configuration
 # You should adjust these hyperparameters
@@ -30,11 +34,11 @@ loss = EuclideanLoss(name='loss')
 #       'disp_freq' denotes number of iterations in one epoch to display information.
 
 config = {
-    'learning_rate': 0.1,
+    'learning_rate': 0.01,
     'weight_decay': 0.0,
     'momentum': 0.0,
     'batch_size': 100,
-    'max_epoch': 1000,
+    'max_epoch': 10000,
     'disp_freq': 600,
     'test_epoch': 1
 }

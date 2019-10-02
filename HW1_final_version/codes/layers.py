@@ -100,3 +100,18 @@ class Linear(Layer):
 
         self.diff_b = mm * self.diff_b + (self.grad_b + wd * self.b)
         self.b = self.b - lr * self.diff_b
+
+
+class Normalization(Layer):
+    def __init__(self, name='normalization'):
+        super(Normalization, self).__init__(name)
+
+    def forward(self, input):
+        '''Your codes here'''
+        mean = np.mean(input, axis=1)
+        std = np.std(input, axis=1)
+        return np.divide((input - mean.reshape(input.shape[0], 1)), std.reshape(input.shape[0], 1))
+
+    def backward(self, grad_output):
+        '''Your codes here'''
+        return grad_output
