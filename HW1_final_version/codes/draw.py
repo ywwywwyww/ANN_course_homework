@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-plotfilename = 'log\\two_hidden_layer_relu_mse_lr=0.01_m=0_10000epochs_normalization_'
+plotfilename = 'log\\two_hidden_layer_sigmoid_softmax_crossentropy_lr=0.1_m=0_10000epochs_normalization_'
 
 class draw_plot(object):
     def __init__(self):

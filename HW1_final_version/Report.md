@@ -91,6 +91,10 @@ $$
 
 　　使用了经典的 SGD 方法。
 
+### 2.7 Normalization
+
+　　在输入层前先对数据做一次 Normalization，即 $x_i'=\frac{x_i-\overline x}{\sigma}$ 其中 $\overline x$ 为 $x_i$ 的平均值，$\sigma$ 为 $x_i$ 的标准差。这样做能把 $x_i$ 调整为平均值为 $0$，方差为 $1$ 的分布的变量。能够减少微小扰动带来的影响。
+
 ## 3. Experiments
 
 ### 3.1 Datasets
