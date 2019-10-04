@@ -140,3 +140,41 @@ softmaxcrossentropy
 (has/hasn't normalization)
 
 ## 4. Conclusion
+
+
+
+
+
+
+
+已完成的实验：
+
+2 sigmoid crossentropy lr=0.1 $\times 2$
+
+2 sigmoid crossentropy lr=0.1 normalization  $\times 2$
+
+~~2 sigmoid crossentropy lr=0.01 normalization~~ (discard)
+
+2 sigmoid mse lr=0.1 $\times 2$
+
+2 sigmoid mse lr=0.1 normalization
+
+2 relu crossentropy lr=0.1 $\times 2$
+
+2 relu crossentropy lr=0.1 normalization
+
+2 relu crossentropy lr=0.01
+
+2 relu crossentropy lr=0.01 normalization
+
+2 relu mse lr=0.1 $\times 2$
+
+
+
+1 sigmoid mse lr=0.1
+
+1 sigmoid crosstropy lr=0.1
+
+1 relu mse lr=0.1
+
+1 relu crossentropy lr=0.1

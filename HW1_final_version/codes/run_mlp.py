@@ -13,19 +13,23 @@ train_data, test_data, train_label, test_label = load_mnist_2d('data')
 # Your model defintion here
 # You should explore different model architecture
 model = Network()
-model.add(Normalization())
-model.add(Linear('fc1', 784, 200, sqrt(1 / 784)))
+model.add(Linear('fc1', 784, 100, sqrt(1 / 784)))
 model.add(Sigmoid(name="Sigmoid"))
-# model.add(Relu(name="Relu"))
-model.add(Linear('fc2', 200, 100, sqrt(1 / 200)))
+model.add(Linear('fc2', 100, 10, sqrt(1 / 100)))
 model.add(Sigmoid(name="Sigmoid"))
+# model.add(Normalization())
+# model.add(Linear('fc1', 784, 200, sqrt(1 / 784)))
+# model.add(Sigmoid(name="Sigmoid"))
 # model.add(Relu(name="Relu"))
-model.add(Linear('fc3', 100, 10, sqrt(1 / 100)))
+# model.add(Linear('fc2', 200, 100, sqrt(1 / 200)))
+# model.add(Sigmoid(name="Sigmoid"))
+# model.add(Relu(name="Relu"))
+# model.add(Linear('fc3', 100, 10, sqrt(1 / 100)))
 # model.add(Sigmoid(name="Sigmoid"))
 # model.add(Relu(name="Relu"))
 
-# loss = EuclideanLoss(name='loss')
-loss = SoftmaxCrossEntropyLoss(name='loss')
+loss = EuclideanLoss(name='loss')
+# loss = SoftmaxCrossEntropyLoss(name='loss')
 
 # Training configuration
 # You should adjust these hyperparameters
@@ -43,7 +47,7 @@ config = {
     'test_epoch': 1
 }
 
-for epoch in range(config['max_epoch']):
+for epoch in range(config['max_epoch']  ):
     LOG_INFO('Training @ %d epoch...' % (epoch))
     train_net(model, loss, config, train_data, train_label, config['batch_size'], config['disp_freq'])
 
