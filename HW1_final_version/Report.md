@@ -172,17 +172,17 @@ softmaxcrossentropy
 
 已完成的实验：
 
-- [ ] 2 sigmoid crossentropy lr=0.1 $\times 2$
+- [x] 2 sigmoid crossentropy lr=0.1 $\times 2$
 
 - [ ] 2 sigmoid crossentropy lr=0.1 normalization  $\times 2$
 
 ~~2 sigmoid crossentropy lr=0.01 normalization~~ (discard)
 
-- [ ] 2 sigmoid mse lr=0.1 $\times 2$
+- [x] 2 sigmoid mse lr=0.1 $\times 2$
 
 - [ ] 2 sigmoid mse lr=0.1 normalization
 
-- [ ] 2 relu crossentropy lr=0.1 $\times 2$
+- [x] 2 relu crossentropy lr=0.1 $\times 2$
 
 - [ ] 2 relu crossentropy lr=0.1 normalization
 
