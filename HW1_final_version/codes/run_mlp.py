@@ -5,27 +5,30 @@ from loss import EuclideanLoss, SoftmaxCrossEntropyLoss
 from solve_net import train_net, test_net
 from load_data import load_mnist_2d
 from math import sqrt
-from draw import plot
+from draw import plot, plot2
 from layers import Normalization
+import solve_net
 
 train_data, test_data, train_label, test_label = load_mnist_2d('data')
 
 # Your model defintion here
 # You should explore different model architecture
 model = Network()
-model.add(Linear('fc1', 784, 100, sqrt(1 / 784)))
-model.add(Sigmoid(name="Sigmoid"))
-model.add(Linear('fc2', 100, 10, sqrt(1 / 100)))
-model.add(Sigmoid(name="Sigmoid"))
+# model.add(Linear('fc1', 784, 100, sqrt(1 / 784)))
+# model.add(Sigmoid(name="Sigmoid"))
+# # model.add(Relu(name='Relu'))
+# model.add(Linear('fc2', 100, 10, sqrt(1 / 100)))
+# model.add(Sigmoid(name="Sigmoid"))
+# model.add(Relu(name='Relu'))
 # model.add(Normalization())
-# model.add(Linear('fc1', 784, 200, sqrt(1 / 784)))
-# model.add(Sigmoid(name="Sigmoid"))
+model.add(Linear('fc1', 784, 200, sqrt(1 / 784)))
+model.add(Sigmoid(name="Sigmoid"))
 # model.add(Relu(name="Relu"))
-# model.add(Linear('fc2', 200, 100, sqrt(1 / 200)))
-# model.add(Sigmoid(name="Sigmoid"))
+model.add(Linear('fc2', 200, 100, sqrt(1 / 200)))
+model.add(Sigmoid(name="Sigmoid"))
 # model.add(Relu(name="Relu"))
-# model.add(Linear('fc3', 100, 10, sqrt(1 / 100)))
-# model.add(Sigmoid(name="Sigmoid"))
+model.add(Linear('fc3', 100, 10, sqrt(1 / 100)))
+model.add(Sigmoid(name="Sigmoid"))
 # model.add(Relu(name="Relu"))
 
 loss = EuclideanLoss(name='loss')
@@ -55,7 +58,9 @@ for epoch in range(config['max_epoch']  ):
         LOG_INFO('Testing @ %d epoch...' % (epoch))
         training_loss, training_acc = test_net(model, loss, train_data, train_label, train_data.shape[0])
         test_loss, test_acc = test_net(model, loss, test_data, test_label, test_data.shape[0])
-        plot.add_training((epoch + 1) * train_data.shape[0] // config['batch_size'], training_loss, training_acc)
-        plot.add_test((epoch + 1) * train_data.shape[0] // config['batch_size'], test_loss, test_acc)
+        plot2.add_training((epoch + 1) * train_data.shape[0] // config['batch_size'], training_loss, training_acc)
+        plot2.add_test((epoch + 1) * train_data.shape[0] // config['batch_size'], test_loss, test_acc)
 
-    plot.draw()
+    if epoch % 10 == 0:
+        plot.draw()
+        plot2.draw()

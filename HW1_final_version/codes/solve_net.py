@@ -1,6 +1,8 @@
 from utils import LOG_INFO, onehot_encoding, calculate_acc
 import numpy as np
+from draw import plot
 
+iters = 0
 
 def data_iterator(x, y, batch_size, shuffle=True):
     indx = list(range(len(x)))
@@ -37,6 +39,11 @@ def train_net(model, loss, config, inputs, labels, batch_size, disp_freq):
         acc_value = calculate_acc(output, label)
         loss_list.append(loss_value)
         acc_list.append(acc_value)
+
+        global iters
+        iters += 1
+
+        plot.add_training(iters, loss_value, acc_value)
 
         if iter_counter % disp_freq == 0:
             msg = '  Training iter %d, batch loss %.4f, batch acc %.4f' % (iter_counter, np.mean(loss_list), np.mean(acc_list))
