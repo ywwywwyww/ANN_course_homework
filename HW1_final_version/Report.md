@@ -140,64 +140,185 @@ $$
 
 　　搭建一个网络，使用不同的参数初始化权重矩阵进行测试。
 
-#### Normalization 的影响
+#### 归一化的影响
 
-　　搭建两个网络，其中一个网络在输入层对数据做一遍 normalization。
+　　搭建两个网络，其中一个网络在输入层对数据做一遍归一化处理。
 
 ### 3.3 Quantitative Results
 
-#### 不同结构的网络之间的对比结果如下：
+#### 图像
 
-(layer=1/layer=2),(sigmoid/relu),(mse/softmaxcrossentropy)
+　　由于时间以及设备原因，我记录下了每次迭代中 Mini Batch 的正确率和损失以及每个 Epoch 后整个训练集以及测试集的正确率和损失。
 
-#### 不同超参数之间的对比
+<center>
+<img src="codes\log\one_hidden_layer_relu_crossentropy_lr=0.1_m=0_10000epochs_3.png">
+<br>
+<div>one hidden layer, ReLU, Softmax Cross-Entropy Loss, Without Normalization</div>
+</center>
 
-#### 不同的初始化参数之间的对比
 
-(std=sqrt(1/n)/std=sqrt(2/n)),(sigmoid/relu)
+<center>
+<img src="codes\log\one_hidden_layer_relu_mse_lr=0.1_m=0_10000epochs_3.png">
+<br>
+<div>one hidden layer, ReLU, Mean Square Error, Without Normalization</div>
+</center>
 
-softmaxcrossentropy
 
-#### Normalization
+<center>
+<img src="codes\log\one_hidden_layer_sigmoid_crossentropy_lr=0.1_m=0_10000epochs_3.png">
+<br>
+<div>one hidden layer, Sigmoid, Softmax Cross-Entropy Loss, Without Normalization</div>
+</center>
 
-(layer=2)(sigmoid,lr=0.1/relu,lr=0.1/relu,lr=0.01)(has/hasn't normalization)
+
+<center>
+<img src="codes\log\one_hidden_layer_sigmoid_mse_lr=0.1_m=0_10000epochs_3.png">
+<br>
+<div>one hidden layer, Sigmoid, Mean Square Error, Without Normalization</div>
+</center>
+
+
+<center>
+<img src="codes\log\two_hidden_layer_relu_crossentropy_lr=0.1_m=0_10000epochs_3.png">
+<br>
+<div>two hidden layer, ReLU, Softmax Cross-Entropy Loss, Without Normalization</div>
+</center>
+
+
+<center>
+<img src="codes\log\two_hidden_layer_relu_crossentropy_lr=0.1_m=0_10000epochs_normalization_3.png">
+<br>
+<div>two hidden layer, ReLU, Softmax Cross-Entropy Loss, With Normalization</div>
+</center>
+
+
+<center>
+<img src="codes\log\two_hidden_layer_relu_mse_lr=0.1_m=0_10000epochs_3.png">
+<br>
+<div>two hidden layer, ReLU, Mean Square Error, Without Normalization</div>
+</center>
+
+
+<center>
+<img src="codes\log\two_hidden_layer_relu_mse_lr=0.1_m=0_10000epochs_normalization_3.png">
+<br>
+<div>two hidden layer, ReLU, Mean Square Error, With Normalization</div>
+</center>
+
+
+<center>
+<img src="codes\log\two_hidden_layer_sigmoid_crossentropy_lr=0.1_m=0_10000epochs_3.png">
+<br>
+<div>two hidden layer, Sigmoid, Softmax Cross-Entropy Loss, Without Normalization</div>
+</center>
+
+
+<center>
+<img src="codes\log\two_hidden_layer_sigmoid_crossentropy_lr=0.1_m=0_10000epochs_normalization_3.png">
+<br>
+<div>two hidden layer, Sigmoid, Softmax Cross-Entropy Loss, With Normalization</div>
+</center>
+
+
+<center>
+<img src="codes\log\two_hidden_layer_sigmoid_mse_lr=0.1_m=0_10000epochs_3.png">
+<br>
+<div>two hidden layer, Sigmoid, Mean Square Error, Without Normalization</div>
+</center>
+
+
+<center>
+<img src="codes\log\two_hidden_layer_sigmoid_mse_lr=0.1_m=0_10000epochs_normalization_3.png">
+<br>
+<div>two hidden layer, Sigmoid, Mean Square Error, With Normalization</div>
+</center>
+
+
+#### 不同结构的网络之间的对比：
+
+　　表格如下：
+
+| 模型  | 隐藏层个数 | 激活函数 |          损失函数          | 测试集正确率 | 需要的迭代次数 | 每秒进行的迭代次数 | 达到95%正确率需要的迭代次数 | 达到98%正确率需要的迭代次数 |
+| :---: | :--------: | :------: | :------------------------: | :----------: | :------------: | :----------------: | :-------------------------: | :-------------------------: |
+| 模型1 |     1      |   ReLU   | Softmax Cross-Entropy Loss |    98.07%    |     97200      |        234         |            2400             |            54600            |
+| 模型2 |     1      |   ReLU   |     Mean Square Error      |    97.83%    |     68400      |        237         |            2400             |           -------           |
+| 模型3 |     1      | Sigmoid  | Softmax Cross-Entropy Loss |    98.11%    |     174000     |        192         |            11400            |           118200            |
+| 模型4 |     1      | Sigmoid  |     Mean Square Error      |    98.06%    |    1141800     |        200         |            72600            |           848400            |
+| 模型5 |     2      |   ReLU   | Softmax Cross-Entropy Loss |    98.18%    |     35400      |         88         |            1800             |            16800            |
+| 模型6 |     2      |   ReLU   |     Mean Square Error      |    98.20%    |     67200      |         80         |            1800             |            18600            |
+| 模型7 |     2      | Sigmoid  | Softmax Cross-Entropy Loss |    98.15%    |     114000     |         67         |            13200            |            66600            |
+| 模型8 |     2      | Sigmoid  |     Mean Square Error      |    98.20%    |     912000     |         68         |            79800            |           476400            |
+
+　　进行对比之后，可以得到以下结论：
+
+　　　对于有一个隐藏层的模型，用 Sigmoid 作激活函数的模型相对于用 ReLU 作激活函数的模型来说，在测试集上的正确率会更高，但是每次迭代的用时较长，收敛速度前者远远慢于后者。
+
+　　　对于有一个隐藏层的模型，用 Mean Square Error 作损失函数的模型相对于用 Softmax Cross-Entropy 作损失函数的模型来说，准确率相对较低，每次迭代的用时较长，收敛速度较慢。
+
+　　　对于有两个隐藏层的模型，用 Sigmoid 作激活函数的模型相对于用 ReLU 作激活函数的模型来说，在测试集上的正确率差不多相同，但是每次迭代的用时较长，收敛速度前者远远慢于后者。
+
+　　　对于有两个隐藏层的模型，用 Mean Square Error 作损失函数的模型相对于用 Softmax Cross-Entropy 作损失函数的模型来说，准确率相对较高，每次迭代的用时较长，收敛速度较慢。
+
+　　　对于损失函数、激活函数相同的两个模型，含有一个隐藏层的模型相对于含有两个隐藏层的模型来说，在测试集上的正确率较低，每次迭代的用时较短，收敛速度较快。
+
+#### 归一化：
+
+<center>
+<img src="codes\log\two_hidden_layer_relu_crossentropy_lr=0.1_m=0_10000epochs_normalization_3_2.png">
+<br>
+<div>two hidden layer, ReLU, Softmax Cross-Entropy Loss</div>
+</center>
+
+
+<center>
+<img src="codes\log\two_hidden_layer_relu_mse_lr=0.1_m=0_10000epochs_normalization_3_2.png">
+<br>
+<div>two hidden layer, ReLU, Mean Square Error</div>
+</center>
+
+
+<center>
+<img src="codes\log\two_hidden_layer_sigmoid_crossentropy_lr=0.1_m=0_10000epochs_normalization_3_2.png">
+<br>
+<div>two hidden layer, Sigmoid, Softmax Cross-Entropy Loss</div>
+</center>
+
+
+<center>
+<img src="codes\log\two_hidden_layer_sigmoid_mse_lr=0.1_m=0_10000epochs_normalization_3_2.png">
+<br>
+<div>two hidden layer, Sigmoid, Mean Square Error</div>
+</center>
+
+　　表格如下：
+
+| 模型  | 激活函数 |          损失函数          | 是否有归一化 | 测试集正确率 | 需要的迭代次数 | 达到95%正确率需要的迭代次数 | 达到98%正确率需要的迭代次数 |
+| :---: | :------: | :------------------------: | :----------: | :----------: | :------------: | :-------------------------: | :-------------------------: |
+| 模型1 |   ReLU   | Softmax Cross-Entropy Loss |      否      |    98.18%    |     35400      |            1800             |            16800            |
+| 模型2 |   ReLU   | Softmax Cross-Entropy Loss |      是      |    98.18%    |      9600      |             600             |            7200             |
+| 模型3 |   ReLU   |     Mean Square Error      |      否      |    98.20%    |     67200      |            1800             |            18600            |
+| 模型4 |   ReLU   |     Mean Square Error      |      是      |    98.17%    |     35400      |            1800             |            12600            |
+| 模型5 | Sigmoid  | Softmax Cross-Entropy Loss |      否      |    98.15%    |     114000     |            13200            |            66600            |
+| 模型6 | Sigmoid  | Softmax Cross-Entropy Loss |      是      |    98.31%    |     57000      |            4200             |            18000            |
+| 模型7 | Sigmoid  |     Mean Square Error      |      否      |    98.20%    |     912000     |            79800            |           476400            |
+| 模型8 | Sigmoid  |     Mean Square Error      |      是      |    98.28     |     909000     |            22200            |           142200            |
+
+　　　进行对比之后，可以得到以下结论：
+
+　　　　归一化对模型的收敛速度有很大的提升，对使用 Sigmoid 函数作为激活函数的模型的正确率有微小的提升。
 
 ## 4. Conclusion
 
+　　在这次作业中，我对手写数字识别以及 MLP 进行了一些研究。包括 MLP 的结构、激活函数、损失函数、初始化以及一些其他的内容。实验证明 MLP 能较好的完成手写数字识别的工作。尽管如此，MLP 也有一些不尽人意地方，手写数字识别的正确率还有提升的空间。
 
+## References
 
+[Exploring Context and Visual Pattern of Relationship for Scene Graph Generation](http://openaccess.thecvf.com/content_CVPR_2019/papers/Wang_Exploring_Context_and_Visual_Pattern_of_Relationship_for_Scene_Graph_CVPR_2019_paper.pdf)
 
+[深度学习——Xavier初始化方法](https://blog.csdn.net/shuzfan/article/details/51338178)
 
+[Batch Normalization原理与实战](https://zhuanlan.zhihu.com/p/34879333)
 
+[含有一个隐藏层的神经网络图片](https://www.researchgate.net/profile/Rosline_Hassan/publication/260321700/figure/fig1/AS:296985614667776@1447818296312/Structure-of-a-one-hidden-layer-MLP-Network.png)
 
-已完成的实验：
-
-- [x] 2 sigmoid crossentropy lr=0.1 $\times 2$
-
-- [ ] 2 sigmoid crossentropy lr=0.1 normalization  $\times 2$
-
-~~2 sigmoid crossentropy lr=0.01 normalization~~ (discard)
-
-- [x] 2 sigmoid mse lr=0.1 $\times 2$
-
-- [ ] 2 sigmoid mse lr=0.1 normalization
-
-- [x] 2 relu crossentropy lr=0.1 $\times 2$
-
-- [ ] 2 relu crossentropy lr=0.1 normalization
-
-- [ ] 2 relu crossentropy lr=0.01
-
-- [ ] 2 relu crossentropy lr=0.01 normalization
-
-- [x] 2 relu mse lr=0.1 $\times 2$
-
-
-
-- [x] 1 sigmoid mse lr=0.1 $\times 2$
-
-- [x] 1 sigmoid crosstropy lr=0.1 $\times 2$
-
-- [x] 1 relu mse lr=0.1
-
-- [x] 1 relu crossentropy lr=0.1
+[含有两个隐藏层的神经网络的图片](https://www.researchgate.net/profile/L_Ekonomou/publication/236900080/figure/fig1/AS:299287272542214@1448367054951/Multilayer-perceptron-MLP-with-two-hidden-layers.png)

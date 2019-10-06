@@ -8,6 +8,7 @@ from math import sqrt
 from draw import plot, plot2
 from layers import Normalization
 import solve_net
+import timeit
 
 train_data, test_data, train_label, test_label = load_mnist_2d('data')
 
@@ -20,7 +21,7 @@ model = Network()
 # model.add(Linear('fc2', 100, 10, sqrt(1 / 100)))
 # model.add(Sigmoid(name="Sigmoid"))
 # model.add(Relu(name='Relu'))
-model.add(Normalization())
+# model.add(Normalization())
 model.add(Linear('fc1', 784, 200, sqrt(1 / 784)))
 # model.add(Sigmoid(name="Sigmoid"))
 model.add(Relu(name="Relu"))
@@ -29,10 +30,10 @@ model.add(Linear('fc2', 200, 100, sqrt(1 / 200)))
 model.add(Relu(name="Relu"))
 model.add(Linear('fc3', 100, 10, sqrt(1 / 100)))
 # model.add(Sigmoid(name="Sigmoid"))
-# model.add(Relu(name="Relu"))
+model.add(Relu(name="Relu"))
 
-# loss = EuclideanLoss(name='loss')
-loss = SoftmaxCrossEntropyLoss(name='loss')
+loss = EuclideanLoss(name='loss')
+# loss = SoftmaxCrossEntropyLoss(name='loss')
 
 # Training configuration
 # You should adjust these hyperparameters
@@ -52,7 +53,10 @@ config = {
 
 for epoch in range(config['max_epoch']  ):
     LOG_INFO('Training @ %d epoch...' % (epoch))
+    start = timeit.default_timer()
     train_net(model, loss, config, train_data, train_label, config['batch_size'], config['disp_freq'])
+    elapsed = (timeit.default_timer() - start)
+    print('                                                                                 ', 1/ (elapsed / (train_data.shape[0] // config['batch_size'])))
 
     if epoch % config['test_epoch'] == 0:
         LOG_INFO('Testing @ %d epoch...' % (epoch))

@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-plotfilename = 'log\\two_hidden_layer_relu_crossentropy_lr=0.1_m=0_10000epochs_normalization_3\\'
+# plotfilename = 'log\\one_hidden_layer_relu_mse_lr=0.1_m=0_10000epochs_3\\'
+plotfilename = 'log\\test_speed\\'
 plotfilename2 = plotfilename + "perepoch_"
 
 class draw_plot(object):
