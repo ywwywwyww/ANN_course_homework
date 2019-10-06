@@ -4,7 +4,7 @@
 
 ## Abstract
 
-　　图像识别一直是深度学习中的一个基础又重要的内容。我们对手写数字识别和分类进行了一些研究，搭建了 MLP 模型并使用 MNIST 数据集对我们的模型进行了一些测试。
+　　图像识别一直是深度学习中的一个基础又重要的内容。在这次作业中，我对手写数字识别和分类进行了一些研究，搭建了 MLP 模型并使用 MNIST 数据集对我的模型进行了一些测试。
 
 ## 1. Introduction
 
@@ -46,7 +46,21 @@
 
 　　对于有两个隐藏层的网络，第一个隐藏层的节点个数为 $200$，第二个隐藏层的节点数为 $100$。
 
-### 2.2 Activation Function
+### 2.2 Forward Propagation
+
+　　把一张图片的 784 个像素点的灰度值作为输入。
+
+　　对于每一层，设前一层的输出为 $y^{l-1}$（为一个 $1\times n_{i-1}$ 的矩阵），权值矩阵为 $W^{l}$，偏置为 $b^{l}$，激活函数为 $f(x)$。那么这一层的输出 $y^l$为
+$$
+u^l = y^{l-1}W^l+b^l\\
+y^l = f(u^l)
+$$
+
+### 2.3 Back Propagation
+
+　　先计算最后一层的输出的偏导数 $\frac{\partial E}{\partial y^l}$，然后从后往前计算每层的局部梯度 $\delta^l = \frac{\partial E}{\partial y^l}*f'(u^l)$（其中 $*$ 为逐元素相乘）、权值矩阵的偏导数 $\frac{\partial E}{\partial W^l} = (y^{l-1})^T\delta^l$、偏置的偏导数 $\frac{\partial E}{\partial b^l} = \delta^l$ 和前一层输出的偏导数 $\frac{\partial E}{\partial y^{l-1}} = \delta^l(W^l)^T$。
+
+### 2.4 Activation Function
 
 　　我选择了两个激活函数：
 $$
@@ -54,7 +68,7 @@ $$
 \text{ReLU}(x)&=\begin{cases}x&,x>0\\
 0&,\text{otherwise}
 \end{cases}\\
-\text{Sigmoid}(x)&=\frac{1}{1-e^{-x}}
+\text{Sigmoid}(x)&=\frac{1}{1+e^{-x}}
 \end{align}
 $$
 　　它们的导数分别为：
@@ -67,7 +81,7 @@ $$
 \end{align}
 $$
 
-### 2.3 Loss Function
+### 2.5 Loss Function
 
 　　我选择了两个损失函数：
 
@@ -91,19 +105,19 @@ $$
 \frac{\partial E}{\partial y_k^{(n)}}=\frac{1}{N}(h_k^{(n)}-t_k^{(n)})
 $$
 
-### 2.4 Parameters
+### 2.6 Parameters
 
 　　我使用了 Xavier 初始化方法，权值矩阵初始化为 $\sigma^2=\frac{1}{n_i}$ 的正态分布的随机变量。其中 $n_i$ 为前一层的节点个数。
 
 　　偏置矩阵初始化为 $0$。
 
-### 2.5 Optimizer
+### 2.7 Optimizer
 
-　　使用了经典的 SGD 方法。
+　　使用了经典的 SGD 方法，即 $W = W - \eta \frac{\partial E}{\partial W}$。对 $b$ 也是如此。
 
-### 2.6 Normalization
+### 2.8 Normalization
 
-　　在输入层前先对数据做一次归一化，即 $x_i'=\frac{x_i-\overline x}{\sigma}$ 。其中 $\overline x$ 为 $x_i$ 的平均值，$\sigma$ 为 $x_i$ 的标准差。这样做能把 $x_i$ 调整为平均值为 $0$，方差为 $1$ 的分布。能够减少微小扰动带来的影响。
+　　在某些模型中添加一个归一化层：在输入层前先对数据做一次归一化，即令 $x_i'=\frac{x_i-\overline x}{\sigma}$ 。其中 $\overline x$ 为 $x_i$ 的平均值，$\sigma$ 为 $x_i$ 的标准差。这样做能把 $x_i$ 调整为平均值为 $0$，方差为 $1$ 的分布。能够减少微小扰动带来的影响。
 
 ## 3. Experiments
 
@@ -119,7 +133,7 @@ $$
 
 #### 归一化的影响
 
-　　搭建了八个模型，其中四个在输入层对数据做一遍归一化处理，另外四个没有。使用的参数为：hidder layer $= 2$, learning rate $=0.1$，momentum $=0$，weight decay $=0$，batch size $=100$。
+　　搭建了八个模型，其中四个在输入层对数据做一遍归一化处理，另外四个没有。使用的参数为：hidden layer num $= 2$, learning rate $=0.1$，momentum $=0$，weight decay $=0$，batch size $=100$。
 
 ### 3.3 Quantitative Results
 
@@ -228,15 +242,15 @@ $$
 
 　　进行对比之后，可以得到以下结论：
 
-　　　对于有一个隐藏层的模型，用 Sigmoid 作激活函数的模型相对于用 ReLU 作激活函数的模型来说，在测试集上的正确率会更高，但是每次迭代的用时较长，收敛速度前者远远慢于后者。
+- 对于有一个隐藏层的模型，用 Sigmoid 作激活函数的模型相对于用 ReLU 作激活函数的模型来说，在测试集上的正确率会更高，但是每次迭代的用时较长，收敛速度前者远远慢于后者。
 
-　　　对于有一个隐藏层的模型，用 Mean Square Error 作损失函数的模型相对于用 Softmax Cross-Entropy 作损失函数的模型来说，准确率相对较低，每次迭代的用时较长，收敛速度较慢。
+- 对于有一个隐藏层的模型，用 Mean Square Error 作损失函数的模型相对于用 Softmax Cross-Entropy 作损失函数的模型来说，准确率相对较低，每次迭代的用时较长，收敛速度较慢。
 
-　　　对于有两个隐藏层的模型，用 Sigmoid 作激活函数的模型相对于用 ReLU 作激活函数的模型来说，在测试集上的正确率差不多相同，但是每次迭代的用时较长，收敛速度前者远远慢于后者。
+- 对于有两个隐藏层的模型，用 Sigmoid 作激活函数的模型相对于用 ReLU 作激活函数的模型来说，在测试集上的正确率差不多相同，但是每次迭代的用时较长，收敛速度前者远远慢于后者。
 
-　　　对于有两个隐藏层的模型，用 Mean Square Error 作损失函数的模型相对于用 Softmax Cross-Entropy 作损失函数的模型来说，准确率相对较高，每次迭代的用时较长，收敛速度较慢。
+- 对于有两个隐藏层的模型，用 Mean Square Error 作损失函数的模型相对于用 Softmax Cross-Entropy 作损失函数的模型来说，准确率相对较高，每次迭代的用时较长，收敛速度较慢。
 
-　　　对于损失函数、激活函数相同的两个模型，含有一个隐藏层的模型相对于含有两个隐藏层的模型来说，在测试集上的正确率较低，每次迭代的用时较短，收敛速度较快。
+- 对于损失函数、激活函数相同的两个模型，含有一个隐藏层的模型相对于含有两个隐藏层的模型来说，在测试集上的正确率较低，每次迭代的用时较短，收敛速度较快。
 
 #### 归一化：
 
@@ -284,7 +298,7 @@ $$
 
 　　　进行对比之后，可以得到以下结论：
 
-　　　　归一化对模型的收敛速度有很大的提升，对使用 Sigmoid 函数作为激活函数的模型的正确率有微小的提升。
+- 归一化对模型的收敛速度有很大的提升，对使用 Sigmoid 函数作为激活函数的模型的正确率有微小的提升。
 
 ## 4. Conclusion
 
