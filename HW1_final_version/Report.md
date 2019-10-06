@@ -71,7 +71,7 @@ $$
 
 　　我选择了两个损失函数：
 
-　　　EuclieanLoss(MeanSquareError)：对于预测结果 $y^{(n)}$ 和实际的结果（人工标注的结果） $t^{(n)}$，误差为：
+　　　EuclieanLoss(MeanSquareError)：对于预测结果 $y^{(n)}$ 和实际的结果（人工标注的结果） $t^{(n)}$，损失为：
 $$
 E=\frac{1}{2N}\sum_{n=1}^N\lvert \lvert t^{(n)}-y^{(n)}\rvert \rvert _2^2
 $$
@@ -79,7 +79,7 @@ $$
 $$
 \frac{\partial E}{\partial y_k^{(n)}}=\frac{1}{N}(y_k^{(n)}-t_k^{(n)})
 $$
-　　　SoftmaxCrossEntropy：对于预测结果 $y^{(n)}$ 和实际的结果 $t^{(n)}$，误差 $E$ 为：
+　　　SoftmaxCrossEntropy：对于预测结果 $y^{(n)}$ 和实际的结果 $t^{(n)}$，损失 $E$ 为：
 
 $$
 E=\frac{1}{N}\sum_{n=1}^NE^{(n)}\\
@@ -103,7 +103,7 @@ $$
 
 ### 2.6 Normalization
 
-　　在输入层前先对数据做一次 Normalization，即 $x_i'=\frac{x_i-\overline x}{\sigma}$ 其中 $\overline x$ 为 $x_i$ 的平均值，$\sigma$ 为 $x_i$ 的标准差。这样做能把 $x_i$ 调整为平均值为 $0$，方差为 $1$ 的分布的变量。能够减少微小扰动带来的影响。
+　　在输入层前先对数据做一次归一化，即 $x_i'=\frac{x_i-\overline x}{\sigma}$ 。其中 $\overline x$ 为 $x_i$ 的平均值，$\sigma$ 为 $x_i$ 的标准差。这样做能把 $x_i$ 调整为平均值为 $0$，方差为 $1$ 的分布。能够减少微小扰动带来的影响。
 
 ## 3. Experiments
 
@@ -119,7 +119,7 @@ $$
 
 #### 归一化的影响
 
-　　搭建了八个网络，其中四个网络在输入层对数据做一遍归一化处理，另外四个没有。使用的参数为：hidder layer $= 2$, learning rate $=0.1$，momentum $=0$，weight decay $=0$，batch size $=100$。
+　　搭建了八个模型，其中四个在输入层对数据做一遍归一化处理，另外四个没有。使用的参数为：hidder layer $= 2$, learning rate $=0.1$，momentum $=0$，weight decay $=0$，batch size $=100$。
 
 ### 3.3 Quantitative Results
 
