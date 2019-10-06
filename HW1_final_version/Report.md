@@ -12,17 +12,12 @@
 
 　　把一个图像输入到 MLP 中，会得到预测出的这个图像分别是每个数字的概率。
 
-　　下图展示了一个手写数字的图像以及预测结果：
+　　下图展示了一个手写数字的图像以及识别结果：
 
 <center>
-<img style="border-radius: 0.3125em;
-box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
-src="C:\Users\weeer\Desktop\ANN\ANN_course_homework\HW1_final_version\predict.png">
+<img src="C:\Users\weeer\Desktop\ANN\ANN_course_homework\HW1_final_version\predict.png">
 <br>
-<div style="color:orange; border-bottom: 1px solid #d9d9d9;
-display: inline-block;
-color: #999;
-padding: 2px;">该图为 MNIST 中一个数字 7 的图像以及 MLP 网络的预测结果。</div>
+<div>该图为 MNIST 中一个数字 7 的图像以及 MLP 网络的预测结果。</div>
 </center>
 
 ## 2. Approach
@@ -34,25 +29,15 @@ padding: 2px;">该图为 MNIST 中一个数字 7 的图像以及 MLP 网络的�
 　　我搭建了几个包含一个隐藏层的和几个包含两个隐藏层的模型，它们的结构如下：
 
 <center>
-<img style="border-radius: 0.3125em;
-box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
-src="https://www.researchgate.net/profile/Rosline_Hassan/publication/260321700/figure/fig1/AS:296985614667776@1447818296312/Structure-of-a-one-hidden-layer-MLP-Network.png">
+<img src="Structure-of-a-one-hidden-layer-MLP-Network.png">
 <br>
-<div style="color:orange; border-bottom: 1px solid #d9d9d9;
-display: inline-block;
-color: #999;
-padding: 2px;">包含一个隐藏层的网络</div>
+<div>包含一个隐藏层的网络</div>
 </center>
 
 <center>
-<img style="border-radius: 0.3125em;
-box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
-src="https://www.researchgate.net/profile/L_Ekonomou/publication/236900080/figure/fig1/AS:299287272542214@1448367054951/Multilayer-perceptron-MLP-with-two-hidden-layers.png">
+<img src="Multilayer-perceptron-MLP-with-two-hidden-layers.png">
 <br>
-<div style="color:orange; border-bottom: 1px solid #d9d9d9;
-display: inline-block;
-color: #999;
-padding: 2px;">包含两个隐藏层的网络</div>
+<div>包含两个隐藏层的网络</div>
 </center>
 
 　　所有网络的输入层节点个数为 $784$，输出层节点个数为 $10$。边为全连接的。没有 Dropout。
@@ -84,7 +69,7 @@ $$
 
 ### 2.3 Loss Function
 
-　　我选择了两个误差函数：
+　　我选择了两个损失函数：
 
 　　　EuclieanLoss(MeanSquareError)：对于预测结果 $y^{(n)}$ 和实际的结果（人工标注的结果） $t^{(n)}$，误差为：
 $$
@@ -130,19 +115,11 @@ $$
 
 #### 不同结构的网络之间的对比
 
-　　分别搭建了八个不同的网络，使用了相同的参数进行对比（其中误差函数为 SoftmaxCorssEntropy 的网络中输出层没有激活函数）。使用的参数为：learning rate $=0.1$，momentum $=0$，weight decay $=0$，batch size $=100$。
-
-#### 不同的超参数之间的对比
-
-　　搭建一个网络，使用不同的超参数进行测试。
-
-#### 不同的初始化参数之间的对比
-
-　　搭建一个网络，使用不同的参数初始化权重矩阵进行测试。
+　　分别搭建了八个不同的网络，使用了相同的参数进行对比（其中误差函数为 SoftmaxCorssEntropy 的网络中输出层没有激活函数）。使用的参数为：learning rate $=0.1$，momentum $=0$，weight decay $=0$，batch size $=100$，without normalization。
 
 #### 归一化的影响
 
-　　搭建两个网络，其中一个网络在输入层对数据做一遍归一化处理。
+　　搭建了八个网络，其中四个网络在输入层对数据做一遍归一化处理，另外四个没有。使用的参数为：hidder layer $= 2$, learning rate $=0.1$，momentum $=0$，weight decay $=0$，batch size $=100$。
 
 ### 3.3 Quantitative Results
 
@@ -236,18 +213,18 @@ $$
 
 #### 不同结构的网络之间的对比：
 
-　　表格如下：
+　　整理出的表格如下：
 
-| 模型  | 隐藏层个数 | 激活函数 |          损失函数          | 测试集正确率 | 需要的迭代次数 | 每秒进行的迭代次数 | 达到95%正确率需要的迭代次数 | 达到98%正确率需要的迭代次数 |
-| :---: | :--------: | :------: | :------------------------: | :----------: | :------------: | :----------------: | :-------------------------: | :-------------------------: |
-| 模型1 |     1      |   ReLU   | Softmax Cross-Entropy Loss |    98.07%    |     97200      |        234         |            2400             |            54600            |
-| 模型2 |     1      |   ReLU   |     Mean Square Error      |    97.83%    |     68400      |        237         |            2400             |           -------           |
-| 模型3 |     1      | Sigmoid  | Softmax Cross-Entropy Loss |    98.11%    |     174000     |        192         |            11400            |           118200            |
-| 模型4 |     1      | Sigmoid  |     Mean Square Error      |    98.06%    |    1141800     |        200         |            72600            |           848400            |
-| 模型5 |     2      |   ReLU   | Softmax Cross-Entropy Loss |    98.18%    |     35400      |         88         |            1800             |            16800            |
-| 模型6 |     2      |   ReLU   |     Mean Square Error      |    98.20%    |     67200      |         80         |            1800             |            18600            |
-| 模型7 |     2      | Sigmoid  | Softmax Cross-Entropy Loss |    98.15%    |     114000     |         67         |            13200            |            66600            |
-| 模型8 |     2      | Sigmoid  |     Mean Square Error      |    98.20%    |     912000     |         68         |            79800            |           476400            |
+| 模型  | 隐藏层个数 | 激活函数 |          损失函数          | 测试集正确率 | 测试集达到最大正确率需要的迭代次数 | 每秒进行的迭代次数 | 测试集达到95%正确率需要的迭代次数 | 测试集达到98%正确率需要的迭代次数 |
+| :---: | :--------: | :------: | :------------------------: | :----------: | :--------------------------------: | :----------------: | :-------------------------------: | :-------------------------------: |
+| 模型1 |     1      |   ReLU   | Softmax Cross-Entropy Loss |    98.07%    |               97200                |        234         |               2400                |               54600               |
+| 模型2 |     1      |   ReLU   |     Mean Square Error      |    97.83%    |               68400                |        237         |               2400                |              -------              |
+| 模型3 |     1      | Sigmoid  | Softmax Cross-Entropy Loss |    98.11%    |               174000               |        192         |               11400               |              118200               |
+| 模型4 |     1      | Sigmoid  |     Mean Square Error      |    98.06%    |              1141800               |        200         |               72600               |              848400               |
+| 模型5 |     2      |   ReLU   | Softmax Cross-Entropy Loss |    98.18%    |               35400                |         88         |               1800                |               16800               |
+| 模型6 |     2      |   ReLU   |     Mean Square Error      |    98.20%    |               67200                |         80         |               1800                |               18600               |
+| 模型7 |     2      | Sigmoid  | Softmax Cross-Entropy Loss |    98.15%    |               114000               |         67         |               13200               |               66600               |
+| 模型8 |     2      | Sigmoid  |     Mean Square Error      |    98.20%    |               912000               |         68         |               79800               |              476400               |
 
 　　进行对比之后，可以得到以下结论：
 
@@ -262,6 +239,8 @@ $$
 　　　对于损失函数、激活函数相同的两个模型，含有一个隐藏层的模型相对于含有两个隐藏层的模型来说，在测试集上的正确率较低，每次迭代的用时较短，收敛速度较快。
 
 #### 归一化：
+
+　　测试集的损失和正确率随迭代次数的图像如下：
 
 <center>
 <img src="codes\log\two_hidden_layer_relu_crossentropy_lr=0.1_m=0_10000epochs_normalization_3_2.png">
@@ -290,18 +269,18 @@ $$
 <div>two hidden layer, Sigmoid, Mean Square Error</div>
 </center>
 
-　　表格如下：
+　　整理出的表格如下：
 
-| 模型  | 激活函数 |          损失函数          | 是否有归一化 | 测试集正确率 | 需要的迭代次数 | 达到95%正确率需要的迭代次数 | 达到98%正确率需要的迭代次数 |
-| :---: | :------: | :------------------------: | :----------: | :----------: | :------------: | :-------------------------: | :-------------------------: |
-| 模型1 |   ReLU   | Softmax Cross-Entropy Loss |      否      |    98.18%    |     35400      |            1800             |            16800            |
-| 模型2 |   ReLU   | Softmax Cross-Entropy Loss |      是      |    98.18%    |      9600      |             600             |            7200             |
-| 模型3 |   ReLU   |     Mean Square Error      |      否      |    98.20%    |     67200      |            1800             |            18600            |
-| 模型4 |   ReLU   |     Mean Square Error      |      是      |    98.17%    |     35400      |            1800             |            12600            |
-| 模型5 | Sigmoid  | Softmax Cross-Entropy Loss |      否      |    98.15%    |     114000     |            13200            |            66600            |
-| 模型6 | Sigmoid  | Softmax Cross-Entropy Loss |      是      |    98.31%    |     57000      |            4200             |            18000            |
-| 模型7 | Sigmoid  |     Mean Square Error      |      否      |    98.20%    |     912000     |            79800            |           476400            |
-| 模型8 | Sigmoid  |     Mean Square Error      |      是      |    98.28     |     909000     |            22200            |           142200            |
+| 模型  | 激活函数 |          损失函数          | 是否有归一化 | 测试集正确率 | 测试集达到最大正确率需要的迭代次数 | 测试集达到95%正确率需要的迭代次数 | 测试集达到98%正确率需要的迭代次数 |
+| :---: | :------: | :------------------------: | :----------: | :----------: | :--------------------------------: | :-------------------------------: | :-------------------------------: |
+| 模型1 |   ReLU   | Softmax Cross-Entropy Loss |      否      |    98.18%    |               35400                |               1800                |               16800               |
+| 模型2 |   ReLU   | Softmax Cross-Entropy Loss |      是      |    98.18%    |                9600                |                600                |               7200                |
+| 模型3 |   ReLU   |     Mean Square Error      |      否      |    98.20%    |               67200                |               1800                |               18600               |
+| 模型4 |   ReLU   |     Mean Square Error      |      是      |    98.17%    |               35400                |               1800                |               12600               |
+| 模型5 | Sigmoid  | Softmax Cross-Entropy Loss |      否      |    98.15%    |               114000               |               13200               |               66600               |
+| 模型6 | Sigmoid  | Softmax Cross-Entropy Loss |      是      |    98.31%    |               57000                |               4200                |               18000               |
+| 模型7 | Sigmoid  |     Mean Square Error      |      否      |    98.20%    |               912000               |               79800               |              476400               |
+| 模型8 | Sigmoid  |     Mean Square Error      |      是      |    98.28%    |               909000               |               22200               |              142200               |
 
 　　　进行对比之后，可以得到以下结论：
 
@@ -309,7 +288,7 @@ $$
 
 ## 4. Conclusion
 
-　　在这次作业中，我对手写数字识别以及 MLP 进行了一些研究。包括 MLP 的结构、激活函数、损失函数、初始化以及一些其他的内容。实验证明 MLP 能较好的完成手写数字识别的工作。尽管如此，MLP 也有一些不尽人意地方，手写数字识别的正确率还有提升的空间。
+　　在这次作业中，我对手写数字识别以及 MLP 进行了一些研究。包括 MLP 的结构、激活函数、损失函数、初始化以及一些其他的内容。实验证明 MLP 能较好的完成手写数字识别的工作。尽管如此，MLP 也有一些不尽人意地方，会有一小部分的数字识别不出或识别错误。
 
 ## References
 
@@ -321,4 +300,4 @@ $$
 
 [含有一个隐藏层的神经网络图片](https://www.researchgate.net/profile/Rosline_Hassan/publication/260321700/figure/fig1/AS:296985614667776@1447818296312/Structure-of-a-one-hidden-layer-MLP-Network.png)
 
-[含有两个隐藏层的神经网络的图片](https://www.researchgate.net/profile/L_Ekonomou/publication/236900080/figure/fig1/AS:299287272542214@1448367054951/Multilayer-perceptron-MLP-with-two-hidden-layers.png)
+[含有两个隐藏层的神经网络图片](https://www.researchgate.net/profile/L_Ekonomou/publication/236900080/figure/fig1/AS:299287272542214@1448367054951/Multilayer-perceptron-MLP-with-two-hidden-layers.png)
