@@ -31,7 +31,7 @@ class Relu(Layer):
         return np.fmax(input, np.zeros(input.shape))
 
     def df(self, input):
-        return (input >= 0).astype(np.float64)
+        return (input > 0).astype(np.float64)
 
     def forward(self, input):
         '''Your codes here'''

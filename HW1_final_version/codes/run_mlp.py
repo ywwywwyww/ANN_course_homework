@@ -56,7 +56,7 @@ for epoch in range(config['max_epoch']  ):
     start = timeit.default_timer()
     train_net(model, loss, config, train_data, train_label, config['batch_size'], config['disp_freq'])
     elapsed = (timeit.default_timer() - start)
-    print('                                                                                 ', 1/ (elapsed / (train_data.shape[0] // config['batch_size'])))
+    # print('                                                                                 ', 1/ (elapsed / (train_data.shape[0] // config['batch_size'])))
 
     if epoch % config['test_epoch'] == 0:
         LOG_INFO('Testing @ %d epoch...' % (epoch))

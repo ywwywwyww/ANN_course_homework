@@ -35,18 +35,18 @@ def plot(FolderName):
     TrainingIters, TrainingLoss, TrainingAcc = ReadData(TrainingName)
     TestPerEpochIters, TestPerEpochLoss, TestPerEpochAcc = ReadData(TestPerEpochName)
     TrainingPerEpochIters, TrainingPerEpochLoss, TrainingPerEpochAcc = ReadData(TrainingPerEpochName)
-
-    s1 = 1e100
-    s2 = 1e100
-    for i in range(0, TestPerEpochIters.__len__()):
-        if TestPerEpochAcc[i] >= 0.95:
-            s1 = min(s1, TestPerEpochIters[i])
-        if TestPerEpochAcc[i] >= 0.98:
-            s2 = min(s2, TestPerEpochIters[i])
-
-    print(s1, s2, FolderName, file=Log)
-
-    return
+    #
+    # s1 = 1e100
+    # s2 = 1e100
+    # for i in range(0, TestPerEpochIters.__len__()):
+    #     if TestPerEpochAcc[i] >= 0.95:
+    #         s1 = min(s1, TestPerEpochIters[i])
+    #     if TestPerEpochAcc[i] >= 0.98:
+    #         s2 = min(s2, TestPerEpochIters[i])
+    #
+    # print(s1, s2, FolderName, file=Log)
+    #
+    # return
 
     dpi = 100
     fig, subplots = plt.subplots(2, 2, figsize=(1300 / dpi, 500 / dpi), dpi=dpi)
@@ -167,44 +167,44 @@ OutputFile = open("log\\b.txt", "w")
 
 for root, dirs, files in os.walk('log\\'):
     if root == 'log\\':
-        for file in files:
-            if file[-5] != '2':
-                continue
-            if file[-3:] == 'png':
-                # print('codes\\log\\' + file)
-                strs = file.split('_')
-                layer, act, loss, nor = "", "", "", ""
-                if strs[0] == 'one':
-                    layer = 'one hidden layer'
-                else:
-                    layer = 'two hidden layer'
-                if strs[3] == 'relu':
-                    act = 'ReLU'
-                else:
-                    act = 'Sigmoid'
-                if strs[4] == 'crossentropy':
-                    loss = 'Softmax Cross-Entropy Loss'
-                else:
-                    loss = 'Mean Square Error'
-                if file[-7] == 'n':
-                    nor = 'With Normalization'
-                else:
-                    nor = 'Without Normalization'
+#         for file in files:
+#             if file[-5] != '2':
+#                 continue
+#             if file[-3:] == 'png':
+#                 # print('codes\\log\\' + file)
+#                 strs = file.split('_')
+#                 layer, act, loss, nor = "", "", "", ""
+#                 if strs[0] == 'one':
+#                     layer = 'one hidden layer'
+#                 else:
+#                     layer = 'two hidden layer'
+#                 if strs[3] == 'relu':
+#                     act = 'ReLU'
+#                 else:
+#                     act = 'Sigmoid'
+#                 if strs[4] == 'crossentropy':
+#                     loss = 'Softmax Cross-Entropy Loss'
+#                 else:
+#                     loss = 'Mean Square Error'
+#                 if file[-7] == 'n':
+#                     nor = 'With Normalization'
+#                 else:
+#                     nor = 'Without Normalization'
+# #                 print("<center>\n<img src=\"%s\">\n\
+# # <br>\n\
+# # <div>%s, %s, %s, %s</div>\n\
+# # </center>\n\n" % ('codes\\log\\' + file, layer, act, loss, nor), file=OutputFile)
 #                 print("<center>\n<img src=\"%s\">\n\
 # <br>\n\
-# <div>%s, %s, %s, %s</div>\n\
-# </center>\n\n" % ('codes\\log\\' + file, layer, act, loss, nor), file=OutputFile)
-                print("<center>\n<img src=\"%s\">\n\
-<br>\n\
-<div>%s, %s, %s</div>\n\
-</center>\n\n" % ('codes\\log\\' + file, layer, act, loss), file=OutputFile)
+# <div>%s, %s, %s</div>\n\
+# </center>\n\n" % ('codes\\log\\' + file, layer, act, loss), file=OutputFile)
 
-        # for dir in dirs:
-        #     if dir[-1] == '3':
-        #         # plot(root + dir)
-        #         for dir2 in dirs:
-        #             if dir2[-1] == '3' and dir2.__len__() > dir.__len__() and dir2[:40] == dir[:40] :
-        #                 # print(dir,' ', dir2)
-        #                 plot2(root + dir, root + dir2)
+        for dir in dirs:
+            if dir[-1] == '3':
+                plot(root + dir)
+                # for dir2 in dirs:
+                #     if dir2[-1] == '3' and dir2.__len__() > dir.__len__() and dir2[:40] == dir[:40] :
+                #         # print(dir,' ', dir2)
+                #         plot2(root + dir, root + dir2)
 
 # plot('log\\one_hidden_layer_relu_crossentropy_lr=0.1_m=0_10000epochs_3')

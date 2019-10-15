@@ -128,3 +128,6 @@ dmypy.json
 *.iml
 *.txt
 *.png
+*.zip
+
+HW2/codes/cifar-10_data
