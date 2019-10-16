@@ -8,7 +8,7 @@ from model import Model
 from load_data import load_cifar_2d
 
 tf.app.flags.DEFINE_integer("batch_size", 100, "batch size for training")
-tf.app.flags.DEFINE_integer("num_epochs", 20, "number of epochs")
+tf.app.flags.DEFINE_integer("num_epochs", 1000, "number of epochs")
 tf.app.flags.DEFINE_float("drop_rate", 0.5, "drop out rate")
 tf.app.flags.DEFINE_boolean("is_train", True, "False to inference")
 tf.app.flags.DEFINE_string("data_dir", "../cifar-10_data", "data dir")
@@ -115,6 +115,9 @@ with tf.Session() as sess:
             if train_loss > max(pre_losses):  # Learning rate decay
                 sess.run(mlp_model.learning_rate_decay_op)
             pre_losses = pre_losses[1:] + [train_loss]
+
+            # for item in tf.trainable_variables():
+            #     print((item.name, item.get_shape()))
 
     else:
         mlp_model = Model()

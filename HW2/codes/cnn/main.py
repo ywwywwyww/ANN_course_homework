@@ -6,9 +6,10 @@ import os
 import time
 from model import Model
 from load_data import load_cifar_4d
+import datetime
 
 tf.app.flags.DEFINE_integer("batch_size", 100, "batch size for training")
-tf.app.flags.DEFINE_integer("num_epochs", 20, "number of epochs")
+tf.app.flags.DEFINE_integer("num_epochs", 1000, "number of epochs")
 tf.app.flags.DEFINE_float("drop_rate", 0.5, "drop out rate")
 tf.app.flags.DEFINE_boolean("is_train", True, "False to inference")
 tf.app.flags.DEFINE_string("data_dir", "../cifar-10_data", "data dir")
