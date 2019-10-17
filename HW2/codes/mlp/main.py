@@ -6,6 +6,7 @@ import os
 import time
 from model import Model
 from load_data import load_cifar_2d
+from save import add_val, add_train, add_test
 
 tf.app.flags.DEFINE_integer("batch_size", 100, "batch size for training")
 tf.app.flags.DEFINE_integer("num_epochs", 1000, "number of epochs")
@@ -94,11 +95,15 @@ with tf.Session() as sess:
 
             val_acc, val_loss = valid_epoch(mlp_model, sess, X_val, y_val)  # Complete the valid process
 
+            add_train(epoch + 1, train_loss, train_acc)
+            add_val(epoch + 1, val_loss, val_acc)
+
             if val_acc >= best_val_acc:  # when valid_accuracy > best_valid_accuracy, save the model
                 best_val_acc = val_acc
                 best_epoch = epoch + 1
                 test_acc, test_loss = valid_epoch(mlp_model, sess, X_test, y_test)  # Complete the test process
                 mlp_model.saver.save(sess, '%s/checkpoint' % FLAGS.train_dir, global_step=mlp_model.global_step)
+                add_test(epoch + 1, test_loss, test_acc)
 
             epoch_time = time.time() - start_time
             print("Epoch " + str(epoch + 1) + " of " + str(FLAGS.num_epochs) + " took " + str(epoch_time) + "s")

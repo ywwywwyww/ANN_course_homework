@@ -40,7 +40,7 @@ class Model:
             # Your Linear Layer
             tensor = tf.layers.dense(tensor, units=1000, name='dense1', reuse=reuse)
             # Your BN Layer: use batch_normalization_layer function
-            tensor = batch_normalization_layer(tensor, "bn1", reuse=reuse, is_train=is_train)
+            # tensor = batch_normalization_layer(tensor, "bn1", reuse=reuse, is_train=is_train)
             # Your Relu Layer
             tensor = tf.nn.relu(tensor)
             # Your Dropout Layer: use dropout_layer function

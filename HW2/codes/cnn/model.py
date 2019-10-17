@@ -36,7 +36,7 @@ class Model:
             #        the 10-class prediction output is named as "logits"
             tensor = self.x_
             # Your Conv Layer
-            tensor = tf.layers.conv2d(tensor, 3, (5, 5), name="conv2d1", reuse=reuse)
+            tensor = tf.layers.conv2d(tensor, 12, (5, 5), name="conv2d1", reuse=reuse)
             # Your BN Layer: use batch_normalization_layer function
             tensor = batch_normalization_layer(tensor, "bn1", reuse, is_train)
             # Your Relu Layer
@@ -46,7 +46,7 @@ class Model:
             # Your MaxPool
             tensor = tf.layers.max_pooling2d(tensor, (2, 2), (2, 2), name="maxpooling1")
             # Your Conv Layer
-            tensor = tf.layers.conv2d(tensor, 3, (5, 5), name="conv2d2", reuse=reuse)
+            tensor = tf.layers.conv2d(tensor, 24, (5, 5), name="conv2d2", reuse=reuse)
             # Your BN Layer: use batch_normalization_layer function
             tensor = batch_normalization_layer(tensor, "bn2", reuse, is_train)
             # Your Relu Layer

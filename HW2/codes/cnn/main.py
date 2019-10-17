@@ -6,7 +6,7 @@ import os
 import time
 from model import Model
 from load_data import load_cifar_4d
-import datetime
+from save import add_val, add_train, add_test
 
 tf.app.flags.DEFINE_integer("batch_size", 100, "batch size for training")
 tf.app.flags.DEFINE_integer("num_epochs", 1000, "number of epochs")
@@ -95,11 +95,15 @@ with tf.Session() as sess:
 
             val_acc, val_loss = valid_epoch(cnn_model, sess, X_val, y_val)
 
+            add_train(epoch + 1, train_loss, train_acc)
+            add_val(epoch + 1, val_loss, val_acc)
+
             if val_acc >= best_val_acc:
                 best_val_acc = val_acc
                 best_epoch = epoch + 1
                 test_acc, test_loss = valid_epoch(cnn_model, sess, X_test, y_test)
                 cnn_model.saver.save(sess, '%s/checkpoint' % FLAGS.train_dir, global_step=cnn_model.global_step)
+                add_test(epoch + 1, test_loss, test_acc)
 
             epoch_time = time.time() - start_time
             print("Epoch " + str(epoch + 1) + " of " + str(FLAGS.num_epochs) + " took " + str(epoch_time) + "s")
