@@ -140,10 +140,10 @@ def plot2(FolderName1, FolderName2):
 
 
     dpi = 100
-    fig, subplots = plt.subplots(1, 2, figsize=(1300 / dpi, 500 / dpi), dpi=dpi)
+    fig, subplots = plt.subplots(2, 2, figsize=(1300 / dpi, 500 / dpi), dpi=dpi)
     # fig.figure(figsize=(3.841, 7.195), dpi=100)
 
-    plt.subplots_adjust(left=0.1, right=0.95)
+    plt.subplots_adjust(hspace=0.6, left=0.1, right=0.95)
 
     subplots[0].plot(TestPerEpochIters1, TestPerEpochLoss1, color='blue', label='Without Normalization')
     subplots[0].plot(TestPerEpochIters2, TestPerEpochLoss2, color='orange', label='With Normalization')
@@ -210,9 +210,13 @@ def plot2(FolderName1, FolderName2):
 # # plot('log\\one_hidden_layer_relu_crossentropy_lr=0.1_m=0_10000epochs_3')
 
 class Plot:
-    def __init__(self):
+    def __init__(self, maxEpoch=1000000):
+        plt.clf()
+
+        self.maxEpoch = maxEpoch
+        
         dpi = 100
-        self.fig, self.subplots = plt.subplots(1, 2, figsize=(1300 / dpi, 500 / dpi), dpi=dpi)
+        self.fig, self.subplots = plt.subplots(2, 2, figsize=(1300 / dpi, 500 / dpi), dpi=dpi)
         # fig.figure(figsize=(3.841, 7.195), dpi=100)
 
         plt.subplots_adjust(left=0.1, right=0.95)
@@ -222,46 +226,74 @@ class Plot:
         self.subplots[0, 0].set_title('Training Loss Per Epoch')
         self.subplots[0, 0].set_xlabel('Epochs')
         self.subplots[0, 0].set_ylabel('Loss')
-        self.subplots[0, 0].legend(loc='best')
-        self.subplots[0, 0].set_ylim(-0.01, 3.01)
+        self.subplots[0, 0].set_ylim(ymax=3.01)
 
         self.subplots[0, 1].set_title('Training Acc Per Epoch')
         self.subplots[0, 1].set_xlabel('Epochs')
         self.subplots[0, 1].set_ylabel('Accuracy')
-        self.subplots[0, 1].legend(loc='best')
-        self.subplots[0, 1].set_ylim(0.29, 0.81)
+        # self.subplots[0, 1].set_ylim(0.29, 1.01)
 
         self.subplots[1, 0].set_title('Validation Loss Per Epoch')
         self.subplots[1, 0].set_xlabel('Epochs')
         self.subplots[1, 0].set_ylabel('Loss')
-        self.subplots[1, 0].legend(loc='best')
-        self.subplots[1, 0].set_ylim(-0.01, 3.01)
+        self.subplots[1, 0].set_ylim(ymax=3.01)
 
         self.subplots[1, 1].set_title('Validation Acc Per Epoch')
         self.subplots[1, 1].set_xlabel('Epochs')
         self.subplots[1, 1].set_ylabel('Accuracy')
-        self.subplots[1, 1].legend(loc='best')
-        self.subplots[1, 1].set_ylim(0.29, 0.81)
+        # self.subplots[1, 1].set_ylim(0.29, 1.01)
 
     def addPlot(self, subplot, x, y, label, fmt):
-        subplot.plot(x, y, label=label, fmt=fmt)
+        subplot.plot(x, y, fmt, label=label)
+
+    def process(self):
+        self.subplots[0, 0].legend(loc='best')
+        self.subplots[0, 1].legend(loc='best')
+        self.subplots[1, 0].legend(loc='best')
+        self.subplots[1, 1].legend(loc='best')
 
     def show(self):
+        self.process()
         plt.show()
 
     def save(self, filename):
+        self.process()
         plt.savefig(filename)
 
     def addModel(self, dir, label, fmt):
         TrainEpochs, TrainLoss, TrainAcc = ReadData(dir + '/train.txt')
         ValEpochs, ValLoss, ValAcc = ReadData(dir + '/val.txt')
-        self.addPlot(self.subplots[0, 0], TrainEpochs, TrainLoss, label, fmt)
-        self.addPlot(self.subplots[0, 1], TrainEpochs, TrainAcc, label, fmt)
-        self.addPlot(self.subplots[1, 0], ValEpochs, ValLoss, label, fmt)
-        self.addPlot(self.subplots[1, 1], ValEpochs, ValAcc, label, fmt)
+        self.addPlot(self.subplots[0, 0], TrainEpochs[0 : self.maxEpoch], TrainLoss[0 : self.maxEpoch], label, fmt)
+        self.addPlot(self.subplots[0, 1], TrainEpochs[0 : self.maxEpoch], TrainAcc[0 : self.maxEpoch], label, fmt)
+        self.addPlot(self.subplots[1, 0], ValEpochs[0 : self.maxEpoch], ValLoss[0 : self.maxEpoch], label, fmt)
+        self.addPlot(self.subplots[1, 1], ValEpochs[0 : self.maxEpoch], ValAcc[0 : self.maxEpoch], label, fmt)
 
 
 
 plot1 = Plot()
-plot1.addModel()
-plot1.show()
+plot1.addModel('log/mlp_dropout_bn_1000hiddennodes_droprate=0.5', 'MLP with BN', '-k')
+plot1.addModel('log/mlp_dropout_1000hiddennodes_droprate=0.5', 'MLP without BN', '-b')
+plot1.addModel('../cnn/log/cnn_dropout_bn_64_128', 'CNN with BN', '-r')
+plot1.addModel('../cnn/log/cnn_dropout_64_128', 'CNN without BN', '-c')
+# plot1.show()
+plot1.save('../../MLPandCNN.png')
+
+plot2 = Plot(200)
+plot2.addModel('log/mlp_dropout_bn_1000hiddennodes_droprate=0', 'with BN, Drop rate=0', '-b')
+plot2.addModel('log/mlp_dropout_bn_1000hiddennodes_droprate=0.1', 'with BN, Drop rate=0.1', '-c')
+plot2.addModel('log/mlp_dropout_bn_1000hiddennodes_droprate=0.3', 'with BN, Drop rate=0.3', '-r')
+plot2.addModel('log/mlp_dropout_bn_1000hiddennodes_droprate=0.5', 'with BN, Drop rate=0.5', '-k')
+plot2.addModel('log/mlp_dropout_bn_1000hiddennodes_droprate=0.7', 'with BN, Drop rate=0.7', '-m')
+plot2.addModel('log/mlp_dropout_bn_1000hiddennodes_droprate=0.9', 'with BN, Drop rate=0.9', '-g')
+# plot2.show()
+plot2.save('../../MLPwithBN.png')
+
+plot3 = Plot(200)
+plot3.addModel('log/mlp_dropout_1000hiddennodes_droprate=0', 'without BN, Drop rate=0', '-b')
+plot3.addModel('log/mlp_dropout_1000hiddennodes_droprate=0.1', 'without BN, Drop rate=0.1', '-c')
+plot3.addModel('log/mlp_dropout_1000hiddennodes_droprate=0.3', 'without BN, Drop rate=0.3', '-r')
+plot3.addModel('log/mlp_dropout_1000hiddennodes_droprate=0.5', 'without BN, Drop rate=0.5', '-k')
+plot3.addModel('log/mlp_dropout_1000hiddennodes_droprate=0.7', 'without BN, Drop rate=0.7', '-m')
+plot3.addModel('log/mlp_dropout_1000hiddennodes_droprate=0.9', 'without BN, Drop rate=0.9', '-g')
+# plot3.show()
+plot3.save('../../MLPwithoutBN.png')

@@ -1,7 +1,7 @@
 import os
 import shutil
 
-modelname = 'cnn_dropout_bn_64_128'
+modelname = 'cnn_dropout_bn_64_128_2'
 dir = 'log/' + modelname + '/'
 
 class Initializer:

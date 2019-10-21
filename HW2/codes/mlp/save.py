@@ -1,7 +1,7 @@
 import os
 import shutil
 
-modelname = 'mlp_dropout_1000hiddennodes_droprate=0.7'
+modelname = 'mlp_dropout_1000hiddennodes_droprate=0.1'
 dir = 'log/' + modelname + '/'
 
 class Initializer:

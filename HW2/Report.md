@@ -36,7 +36,7 @@ $$
 
 　　有时候我们会每次给出一个输入进行测试，这时候无法直接使用整个 MiniBatch 的平均值和方差，所以需要维护训练过程中的整体平均值和方差。记 $t$ 时刻维护的平均值为 $\mu_t$，第 $t$ 次测试的平均值为 $a_t$，令 $\mu_t= momentum \times \mu_{t-1}+(1-momentum) \times a_t$。方差的维护方法相同。测试时会使用维护的平均值和标准差代替当前 MiniBatch 上的平均值和标准差。
 
-　　我直接使用了 `tf.layers.batch_normalization` 函数。Momentum 为默认的 0.99。
+　　我直接使用了 `tf.layers.batch_normalization` 函数。Momentum 为默认的 0.99。该函数会对输入的最后一维做 Batch Normalization。
 
 ## 3. Experiments
 
@@ -67,19 +67,14 @@ $$
 
 　　 以上各个模型的 Drop Rate 均为 0.5。
 
-|      模型       | Drop Rate |  正确率  |
-| :-------------: | :-------: | :------: |
-|  MLP, with BN   |     0     | $53.2\%$ |
-|  MLP, with BN   |    0.1    | $53.7\%$ |
-|  MLP, with BN   |    0.3    | $55.4\%$ |
-|  MLP, with BN   |    0.5    | $56.5\%$ |
-|  MLP, with BN   |    0.7    | $56.1\%$ |
-|  MLP, with BN   |    0.9    | $54.7\%$ |
-| MLP, without BN |     0     | $52.8\%$ |
-| MLP, without BN |    0.3    | $54.3\%$ |
-| MLP, without BN |    0.5    | $55.1\%$ |
-| MLP, without BN |    0.7    | $54.6\%$ |
-| MLP, without BN |    0.9    | $49.3\%$ |
+| 模型 | Drop Rate | Accuracy, with BN | Accuracy, without BN |
+| :--: | :-------: | :---------------: | :------------------: |
+| MLP  |     0     |     $53.2\%$      |       $52.8\%$       |
+| MLP  |    0.1    |     $53.7\%$      |       $52.4\%$       |
+| MLP  |    0.3    |     $55.4\%$      |       $54.3\%$       |
+| MLP  |    0.5    |     $56.5\%$      |       $55.1\%$       |
+| MLP  |    0.7    |     $56.1\%$      |       $54.6\%$       |
+| MLP  |    0.9    |     $54.7\%$      |       $49.3\%$       |
 
 
 

@@ -10,7 +10,7 @@ from save import add_val, add_train, add_test
 
 tf.app.flags.DEFINE_integer("batch_size", 100, "batch size for training")
 tf.app.flags.DEFINE_integer("num_epochs", 300, "number of epochs")
-tf.app.flags.DEFINE_float("drop_rate", 0.7, "drop out rate")
+tf.app.flags.DEFINE_float("drop_rate", 0.1, "drop out rate")
 tf.app.flags.DEFINE_boolean("is_train", True, "False to inference")
 tf.app.flags.DEFINE_string("data_dir", "../cifar-10_data", "data dir")
 tf.app.flags.DEFINE_string("train_dir", "./train", "training dir")
