@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-Log = open("log\\log.txt", "w")
+# Log = open("log\\log.txt", "w")
 
 def ReadData(FileName):
     Iters = []
@@ -75,25 +75,25 @@ def plot(FolderName):
     subplots[1,0].set_ylabel('Loss')
     subplots[1,0].legend(loc='best')
     subplots[1,0].set_ylim(-0.01, 0.3)
-    MinLoss = min(TestPerEpochLoss)
-    MinIters = TestPerEpochIters[TestPerEpochLoss.index(MinLoss)]
-    print(MinIters, MinLoss)
-    if MinIters / TestPerEpochIters[-1] < 0.2:
-        subplots[1,0].annotate(r'$(%d, %.4f)$' % (MinIters, MinLoss), xy=(MinIters, MinLoss), xycoords='data', xytext=(+50, +30),
-                     textcoords='offset points', fontsize=16,
-                     arrowprops=dict(arrowstyle='->'))
-    elif MinIters / TestPerEpochIters[-1] < 0.5:
-        subplots[1,0].annotate(r'$(%d, %.4f)$' % (MinIters, MinLoss), xy=(MinIters, MinLoss), xycoords='data', xytext=(-30, +30),
-                     textcoords='offset points', fontsize=16,
-                     arrowprops=dict(arrowstyle='->'))
-    elif MinIters / TestPerEpochIters[-1] < 0.8:
-        subplots[1,0].annotate(r'$(%d, %.4f)$' % (MinIters, MinLoss), xy=(MinIters, MinLoss), xycoords='data', xytext=(-100, +30),
-                     textcoords='offset points', fontsize=16,
-                     arrowprops=dict(arrowstyle='->'))
-    else:
-        subplots[1,0].annotate(r'$(%d, %.4f)$' % (MinIters, MinLoss), xy=(MinIters, MinLoss), xycoords='data', xytext=(-200, +30),
-                     textcoords='offset points', fontsize=16,
-                     arrowprops=dict(arrowstyle='->'))
+    # MinLoss = min(TestPerEpochLoss)
+    # MinIters = TestPerEpochIters[TestPerEpochLoss.index(MinLoss)]
+    # print(MinIters, MinLoss)
+    # if MinIters / TestPerEpochIters[-1] < 0.2:
+    #     subplots[1,0].annotate(r'$(%d, %.4f)$' % (MinIters, MinLoss), xy=(MinIters, MinLoss), xycoords='data', xytext=(+50, +30),
+    #                  textcoords='offset points', fontsize=16,
+    #                  arrowprops=dict(arrowstyle='->'))
+    # elif MinIters / TestPerEpochIters[-1] < 0.5:
+    #     subplots[1,0].annotate(r'$(%d, %.4f)$' % (MinIters, MinLoss), xy=(MinIters, MinLoss), xycoords='data', xytext=(-30, +30),
+    #                  textcoords='offset points', fontsize=16,
+    #                  arrowprops=dict(arrowstyle='->'))
+    # elif MinIters / TestPerEpochIters[-1] < 0.8:
+    #     subplots[1,0].annotate(r'$(%d, %.4f)$' % (MinIters, MinLoss), xy=(MinIters, MinLoss), xycoords='data', xytext=(-100, +30),
+    #                  textcoords='offset points', fontsize=16,
+    #                  arrowprops=dict(arrowstyle='->'))
+    # else:
+    #     subplots[1,0].annotate(r'$(%d, %.4f)$' % (MinIters, MinLoss), xy=(MinIters, MinLoss), xycoords='data', xytext=(-200, +30),
+    #                  textcoords='offset points', fontsize=16,
+    #                  arrowprops=dict(arrowstyle='->'))
 
     subplots[1,1].plot(TrainingPerEpochIters, TrainingPerEpochAcc, color='blue', label='Training Set')
     subplots[1,1].plot(TestPerEpochIters, TestPerEpochAcc, color='orange', label='Test Set')
@@ -102,25 +102,25 @@ def plot(FolderName):
     subplots[1,1].set_ylabel('Accuracy')
     subplots[1,1].legend(loc='best')
     subplots[1,1].set_ylim(0.9, 1.01)
-    MaxAcc = max(TestPerEpochAcc)
-    MaxIters = TestPerEpochIters[TestPerEpochAcc.index(MaxAcc)]
-    print(MaxIters, MaxAcc)
-    if MaxIters / TestPerEpochIters[-1] < 0.2:
-        subplots[1,1].annotate(r'$(%d, %.4f)$' % (MaxIters, MaxAcc), xy=(MaxIters, MaxAcc), xycoords='data', xytext=(+50, -30),
-                     textcoords='offset points', fontsize=16,
-                     arrowprops=dict(arrowstyle='->'))
-    elif MaxIters / TestPerEpochIters[-1] < 0.5:
-        subplots[1,1].annotate(r'$(%d, %.4f)$' % (MaxIters, MaxAcc), xy=(MaxIters, MaxAcc), xycoords='data', xytext=(-30, -30),
-                     textcoords='offset points', fontsize=16,
-                     arrowprops=dict(arrowstyle='->'))
-    elif MaxIters / TestPerEpochIters[-1] < 0.8:
-        subplots[1,1].annotate(r'$(%d, %.4f)$' % (MaxIters, MaxAcc), xy=(MaxIters, MaxAcc), xycoords='data', xytext=(-100, -30),
-                     textcoords='offset points', fontsize=16,
-                     arrowprops=dict(arrowstyle='->'))
-    else:
-        subplots[1,1].annotate(r'$(%d, %.4f)$' % (MaxIters, MaxAcc), xy=(MaxIters, MaxAcc), xycoords='data', xytext=(-200, -30),
-                     textcoords='offset points', fontsize=16,
-                     arrowprops=dict(arrowstyle='->'))
+    # MaxAcc = max(TestPerEpochAcc)
+    # MaxIters = TestPerEpochIters[TestPerEpochAcc.index(MaxAcc)]
+    # print(MaxIters, MaxAcc)
+    # if MaxIters / TestPerEpochIters[-1] < 0.2:
+    #     subplots[1,1].annotate(r'$(%d, %.4f)$' % (MaxIters, MaxAcc), xy=(MaxIters, MaxAcc), xycoords='data', xytext=(+50, -30),
+    #                  textcoords='offset points', fontsize=16,
+    #                  arrowprops=dict(arrowstyle='->'))
+    # elif MaxIters / TestPerEpochIters[-1] < 0.5:
+    #     subplots[1,1].annotate(r'$(%d, %.4f)$' % (MaxIters, MaxAcc), xy=(MaxIters, MaxAcc), xycoords='data', xytext=(-30, -30),
+    #                  textcoords='offset points', fontsize=16,
+    #                  arrowprops=dict(arrowstyle='->'))
+    # elif MaxIters / TestPerEpochIters[-1] < 0.8:
+    #     subplots[1,1].annotate(r'$(%d, %.4f)$' % (MaxIters, MaxAcc), xy=(MaxIters, MaxAcc), xycoords='data', xytext=(-100, -30),
+    #                  textcoords='offset points', fontsize=16,
+    #                  arrowprops=dict(arrowstyle='->'))
+    # else:
+    #     subplots[1,1].annotate(r'$(%d, %.4f)$' % (MaxIters, MaxAcc), xy=(MaxIters, MaxAcc), xycoords='data', xytext=(-200, -30),
+    #                  textcoords='offset points', fontsize=16,
+    #                  arrowprops=dict(arrowstyle='->'))
 
     plt.savefig(OutputImageName)
     # plt.show()
@@ -208,3 +208,60 @@ def plot2(FolderName1, FolderName2):
 #                 #         plot2(root + dir, root + dir2)
 #
 # # plot('log\\one_hidden_layer_relu_crossentropy_lr=0.1_m=0_10000epochs_3')
+
+class Plot:
+    def __init__(self):
+        dpi = 100
+        self.fig, self.subplots = plt.subplots(1, 2, figsize=(1300 / dpi, 500 / dpi), dpi=dpi)
+        # fig.figure(figsize=(3.841, 7.195), dpi=100)
+
+        plt.subplots_adjust(left=0.1, right=0.95)
+
+        plt.subplots_adjust(hspace=0.6, left=0.1, right=0.95)
+
+        self.subplots[0, 0].set_title('Training Loss Per Epoch')
+        self.subplots[0, 0].set_xlabel('Epochs')
+        self.subplots[0, 0].set_ylabel('Loss')
+        self.subplots[0, 0].legend(loc='best')
+        self.subplots[0, 0].set_ylim(-0.01, 3.01)
+
+        self.subplots[0, 1].set_title('Training Acc Per Epoch')
+        self.subplots[0, 1].set_xlabel('Epochs')
+        self.subplots[0, 1].set_ylabel('Accuracy')
+        self.subplots[0, 1].legend(loc='best')
+        self.subplots[0, 1].set_ylim(0.29, 0.81)
+
+        self.subplots[1, 0].set_title('Validation Loss Per Epoch')
+        self.subplots[1, 0].set_xlabel('Epochs')
+        self.subplots[1, 0].set_ylabel('Loss')
+        self.subplots[1, 0].legend(loc='best')
+        self.subplots[1, 0].set_ylim(-0.01, 3.01)
+
+        self.subplots[1, 1].set_title('Validation Acc Per Epoch')
+        self.subplots[1, 1].set_xlabel('Epochs')
+        self.subplots[1, 1].set_ylabel('Accuracy')
+        self.subplots[1, 1].legend(loc='best')
+        self.subplots[1, 1].set_ylim(0.29, 0.81)
+
+    def addPlot(self, subplot, x, y, label, fmt):
+        subplot.plot(x, y, label=label, fmt=fmt)
+
+    def show(self):
+        plt.show()
+
+    def save(self, filename):
+        plt.savefig(filename)
+
+    def addModel(self, dir, label, fmt):
+        TrainEpochs, TrainLoss, TrainAcc = ReadData(dir + '/train.txt')
+        ValEpochs, ValLoss, ValAcc = ReadData(dir + '/val.txt')
+        self.addPlot(self.subplots[0, 0], TrainEpochs, TrainLoss, label, fmt)
+        self.addPlot(self.subplots[0, 1], TrainEpochs, TrainAcc, label, fmt)
+        self.addPlot(self.subplots[1, 0], ValEpochs, ValLoss, label, fmt)
+        self.addPlot(self.subplots[1, 1], ValEpochs, ValAcc, label, fmt)
+
+
+
+plot1 = Plot()
+plot1.addModel()
+plot1.show()
