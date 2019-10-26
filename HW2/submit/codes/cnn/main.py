@@ -5,11 +5,11 @@ import numpy as np
 import os
 import time
 from model import Model
-from load_data import load_cifar_2d
+from load_data import load_cifar_4d
 from save import add_val, add_train, add_test
 
 tf.app.flags.DEFINE_integer("batch_size", 100, "batch size for training")
-tf.app.flags.DEFINE_integer("num_epochs", 10000, "number of epochs")
+tf.app.flags.DEFINE_integer("num_epochs", 1000, "number of epochs")
 tf.app.flags.DEFINE_float("drop_rate", 0.5, "drop out rate")
 tf.app.flags.DEFINE_boolean("is_train", True, "False to inference")
 tf.app.flags.DEFINE_string("data_dir", "../cifar-10_data", "data dir")
@@ -18,7 +18,7 @@ tf.app.flags.DEFINE_integer("inference_version", 0, "the version for inference")
 FLAGS = tf.app.flags.FLAGS
 
 
-def shuffle(X, y, shuffle_parts):  # Shuffle the X and y
+def shuffle(X, y, shuffle_parts):
     chunk_size = int(len(X) / shuffle_parts)
     shuffled_range = list(range(chunk_size))
 
@@ -77,12 +77,12 @@ with tf.Session() as sess:
     if not os.path.exists(FLAGS.train_dir):
         os.mkdir(FLAGS.train_dir)
     if FLAGS.is_train:
-        X_train, X_test, y_train, y_test = load_cifar_2d(FLAGS.data_dir)
+        X_train, X_test, y_train, y_test = load_cifar_4d(FLAGS.data_dir)
         X_val, y_val = X_train[40000:], y_train[40000:]
         X_train, y_train = X_train[:40000], y_train[:40000]
-        mlp_model = Model()
+        cnn_model = Model()
         if tf.train.get_checkpoint_state(FLAGS.train_dir):
-            mlp_model.saver.restore(sess, tf.train.latest_checkpoint(FLAGS.train_dir))
+            cnn_model.saver.restore(sess, tf.train.latest_checkpoint(FLAGS.train_dir))
         else:
             tf.global_variables_initializer().run()
 
@@ -90,24 +90,24 @@ with tf.Session() as sess:
         best_val_acc = 0.0
         for epoch in range(FLAGS.num_epochs):
             start_time = time.time()
-            train_acc, train_loss = train_epoch(mlp_model, sess, X_train, y_train)  # Complete the training process
+            train_acc, train_loss = train_epoch(cnn_model, sess, X_train, y_train)
             X_train, y_train = shuffle(X_train, y_train, 1)
 
-            val_acc, val_loss = valid_epoch(mlp_model, sess, X_val, y_val)  # Complete the valid process
+            val_acc, val_loss = valid_epoch(cnn_model, sess, X_val, y_val)
 
             add_train(epoch + 1, train_loss, train_acc)
             add_val(epoch + 1, val_loss, val_acc)
 
-            if val_acc >= best_val_acc:  # when valid_accuracy > best_valid_accuracy, save the model
+            if val_acc >= best_val_acc:
                 best_val_acc = val_acc
                 best_epoch = epoch + 1
-                test_acc, test_loss = valid_epoch(mlp_model, sess, X_test, y_test)  # Complete the test process
-                mlp_model.saver.save(sess, '%s/checkpoint' % FLAGS.train_dir, global_step=mlp_model.global_step)
+                test_acc, test_loss = valid_epoch(cnn_model, sess, X_test, y_test)
+                cnn_model.saver.save(sess, '%s/checkpoint' % FLAGS.train_dir, global_step=cnn_model.global_step)
                 add_test(epoch + 1, test_loss, test_acc)
 
             epoch_time = time.time() - start_time
             print("Epoch " + str(epoch + 1) + " of " + str(FLAGS.num_epochs) + " took " + str(epoch_time) + "s")
-            print("  learning rate:                 " + str(mlp_model.learning_rate.eval()))
+            print("  learning rate:                 " + str(cnn_model.learning_rate.eval()))
             print("  training loss:                 " + str(train_loss))
             print("  training accuracy:             " + str(train_acc))
             print("  validation loss:               " + str(val_loss))
@@ -117,26 +117,23 @@ with tf.Session() as sess:
             print("  test loss:                     " + str(test_loss))
             print("  test accuracy:                 " + str(test_acc))
 
-            if train_loss > max(pre_losses):  # Learning rate decay
-                sess.run(mlp_model.learning_rate_decay_op)
+            if train_loss > max(pre_losses):
+                sess.run(cnn_model.learning_rate_decay_op)
             pre_losses = pre_losses[1:] + [train_loss]
 
-            # for item in tf.trainable_variables():
-            #     print((item.name, item.get_shape()))
-
     else:
-        mlp_model = Model()
-        if FLAGS.inference_version == 0:  # Load the checkpoint
+        cnn_model = Model()
+        if FLAGS.inference_version == 0:
             model_path = tf.train.latest_checkpoint(FLAGS.train_dir)
         else:
             model_path = '%s/checkpoint-%08d' % (FLAGS.train_dir, FLAGS.inference_version)
-        mlp_model.saver.restore(sess, model_path)
-        X_train, X_test, y_train, y_test = load_cifar_2d(FLAGS.data_dir)  # load_mnist_2d when implementing MLP
+        cnn_model.saver.restore(sess, model_path)
+        X_train, X_test, y_train, y_test = load_cifar_4d(FLAGS.data_dir)
 
         count = 0
         for i in range(len(X_test)):
-            test_image = X_test[i].reshape((1, 3072))  # May be different in MLP model
-            result = inference(mlp_model, sess, test_image)[0]
+            test_image = X_test[i].reshape((1, 32, 32, 3))
+            result = inference(cnn_model, sess, test_image)[0]
             if result == y_test[i]:
                 count += 1
         print("test accuracy: {}".format(float(count) / len(X_test)))

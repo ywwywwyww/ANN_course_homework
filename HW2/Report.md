@@ -8,7 +8,7 @@
 
 ## 1. Introduction
 
-　　图像分类任务看起来非常简单，但实际上并非如此。可以把任务概括成给出一个图像和若干个类别，你要判断这个图像是属于哪一类的。在这次作业中，我在基础的 MLP 模型和 CNN 模型中添加了两种方法：Dropout 和 Batch Normalization。其中 Dropout 能够减轻过拟合的程度，BN 能够提高正确率和减少过拟合的程度。
+　　在这次作业中，我在测试了的 MLP 模型和 CNN 模型在图像分类任务上的表现，并在基础的模型上添加了两种方法：Dropout 和 Batch Normalization。其中 Dropout 能够减轻过拟合的程度，BN 能够提高正确率和减少过拟合的程度。
 
 ## 2. Approach
 
@@ -18,7 +18,7 @@
 
 　　CNN 模型的结构为  `input - Conv - BN - ReLU - Dropout - MaxPool - Conv - BN - ReLU - Dropout - MaxPool - Linear - Softmax - CrossEntropyLoss` 。其中第一个卷积层的输出的通道数为 $64$，第二个卷积层的输出的通道数为 $128$，卷积核大小都为 $3\times 3$，卷积为 same 卷积。MaxPooling 层的 PoolingSize 为 2。
 
-　　在训练时，往 model.forward 中传入的参数为 `is_train = True, reuse = tf.AUTO_REUSE`。在测试时，传入的参数为 `is_false = False, reuse = tf.AUTO_REUSE`。当 `is_train == True` 时，BN 层会根据当前 MiniBatch 的输出计算平均值和方差，Dropout 层会随机丢弃一些节点。当 `is_train == False` 时，BN 层会使用训练时的平均值和方差，Dropout 层不会丢弃任何节点。
+　　在训练时，往 model.forward 中传入的参数为 `is_train = True, reuse = tf.AUTO_REUSE`。在测试时，传入的参数为 `is_false = False, reuse = tf.AUTO_REUSE`。当 `is_train == True` 时，BN 层会根据当前 MiniBatch 的输出计算平均值和方差，Dropout 层会随机丢弃一些节点。当 `is_train == False` 时，BN 层会使用训练时的平均值和方差，Dropout 层不会丢弃任何节点。`reuse = tf.AUTO_REUSE` 表示 TensorFlow 会自动的复用之前的参数。
 
 ### 2.2 Dropout
 
@@ -46,9 +46,13 @@ $$
 
 ### 3.2 Implementation Details
 
-### 不同模型之间的对比以及 Batch Normalization 的作用
+### 不同模型之间的对比
 
-　　搭建 MLP 和 CNN 模型，其中两个模型含有 BN 层，另外两个不含。
+　　搭建 MLP 和 CNN 模型，其中两个模型含有 BN 层，另外两个不含 BN 层。
+
+### Batch Normalization 的作用
+
+　　搭建 MLP 和 CNN 模型，其中两个模型含有 BN 层，另外两个不含 BN 层。另外还搭建了 Drop Rate 不同的 MLP模型。 
 
 ### Drop Rate 的影响
 
@@ -56,16 +60,54 @@ $$
 
 ### 3.3 Quantitative Results
 
+<center>
+<img src="MLPandCNN.png">
+<br>
+<div>MLP and CNN models</div>
+</center>
+
 　　以下的正确率为验证集上的正确率达到最高时在测试集上的正确率。
 
-|      模型       | 每个 epoch 所需时间 |  正确率  |
-| :-------------: | :-----------------: | :------: |
-|  MLP, with BN   |      25 Second      | $56.5\%$ |
-| MLP, without BN |      22 Second      | $55.1\%$ |
-|  CNN, with BN   |     824 Second      | $77.3\%$ |
-| CNN, without BN |     301 Second      | $75.1\%$ |
+|              模型              | 每个 epoch 所需时间 |  正确率  |
+| :----------------------------: | :-----------------: | :------: |
+|  MLP, with BN, Drop Rate=0.5   |      25 Second      | $56.5\%$ |
+| MLP, without BN, Drop Rate=0.5 |      22 Second      | $55.1\%$ |
+|  CNN, with BN, Drop Rate=0.5   |     824 Second      | $77.3\%$ |
+| CNN, without BN, Drop Rate=0.5 |     301 Second      | $75.3\%$ |
 
-　　 以上各个模型的 Drop Rate 均为 0.5。
+　　可以看出，CNN 模型的正确率和每个 Epoch 的训练时间都远大于 MLP 模型。
+
+<center>
+<img src="BN.png">
+<br>
+<div>各个包含/不包含 BN 的模型的对比</div>
+</center>
+
+<center>
+<img src="MLPDropRate.png">
+<br>
+<div>各个包含/不包含 BN 的模型的对比</div>
+</center>
+
+　　通过对比，可以发现：含有 Batch Normalization 层的网络无论在 Drop Rate 是多少时都有较高的正确率，且正确率差别比较小。那么可以得到结论：Batch Normalization 可以提高模型的正确率，增加收敛速度，但是会增加每个 Epoch 的训练时间。
+
+<center>
+<img src="MLPwithBN.png">
+<br>
+<div>MLP models with BN</div>
+</center>
+
+<center>
+<img src="MLPwithoutBN.png">
+<br>
+<div>MLP models without BN</div>
+</center>
+
+<center>
+<img src="DropRate.png">
+<br>
+<div>Accuracy with DropRate</div>
+</center>
 
 | 模型 | Drop Rate | Accuracy, with BN | Accuracy, without BN |
 | :--: | :-------: | :---------------: | :------------------: |
@@ -74,19 +116,31 @@ $$
 | MLP  |    0.3    |     $55.4\%$      |       $54.3\%$       |
 | MLP  |    0.5    |     $56.5\%$      |       $55.1\%$       |
 | MLP  |    0.7    |     $56.1\%$      |       $54.6\%$       |
-| MLP  |    0.9    |     $54.7\%$      |       $49.3\%$       |
+| MLP  |    0.9    |     $54.7\%$      |       $50.8\%$       |
 
 
+<center>
+<img src="Dropout.png">
+<br>
+<div>Dropout</div>
+</center>
+
+
+　　观察发现：当 Drop Rate 过低时，会有严重的过拟合现象，且正确率较低。当 Drop Rate 过高时，训练速度会变慢，且正确率较低。当 Drop Rate 接近 0.5 时，正确率最高。
 
 ## 4. Conclusion
+
+　　在这次作业中，我对 CNN、Dropout 以及 Batch Normalization 进行了一些研究。我发现 CNN 能够大幅度提升图像分类的正确率，Dropout 能够提升正确率，Batch Normalization 能够提升正确率和收敛速度。
+
+　　遗憾的是，这几个模型的正确率仍然不能令人非常满意，我们仍然需要去寻找一些正确率更高的模型。
 
 ## 5. Others
 
 　　Q:Explain why training loss and validation loss are different. How does the difference help you tuning hyper-parameters? 
 
-　　在没有 Dropout 时，网络是对训练集进行优化的，但是训练集和验证集并不完全相同，因此会导致过拟合，失去部分泛化能力。表现为训练集上的正确率远大于验证集上的正确率。
+　　在没有 Dropout 时，网络是对训练集进行优化的，但是训练集和验证集并不完全相同，因此会导致过拟合，学习到训练集的特征而不是整个问题的特征，失去部分泛化能力。表现为训练集上的正确率远大于验证集上的正确率。
 
-　　在 Drop Rate 比较大时，训练时无法用极少的参数表示出所有数据的特征，会导致训练集上的正确率小于验证集上的正确率。
+　　在 Drop Rate 比较大时，训练时难以用极少的参数表示出所有数据的特征，会导致训练集上的正确率小于验证集上的正确率。
 
 　　因此，当过拟合现象比较严重时，应该增大 Drop Rate。当训练集上的正确率一直小于验证集上的正确率时，应该减小 Drop Rate。
 
