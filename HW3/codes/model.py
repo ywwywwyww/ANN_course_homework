@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 
 from tensorflow.python.ops.nn import dynamic_rnn
+from tensorflow.python.ops import math_ops
 from tensorflow.contrib.seq2seq.python.ops.loss import sequence_loss
 from tensorflow.contrib.lookup.lookup_ops import MutableHashTable
 from tensorflow.contrib.layers.python.layers import layers
@@ -29,8 +30,8 @@ class RNN(object):
         self.texts = tf.placeholder(tf.string, (None, None), 'texts')  # shape: [batch, length]
 
         #todo: implement placeholders
-        self.texts_length = tf.placeholder(, , 'texts_length')  # shape: [batch]
-        self.labels = tf.placeholder(, , 'labels')  # shape: [batch]
+        self.texts_length = tf.placeholder(tf.int32, (None), 'texts_length')  # shape: [batch]
+        self.labels = tf.placeholder(tf.int64, (None), 'labels')  # shape: [batch]
         
         self.symbol2index = MutableHashTable(
                 key_dtype=tf.string,
@@ -59,30 +60,49 @@ class RNN(object):
             self.embed = tf.get_variable('embed', dtype=tf.float32, initializer=embed)
 
         #todo: implement embedding inputs
-        self.embed_input = tf.nn.embedding_lookup(,) #shape: [batch, length, num_embed_units]
+        self.embed_input = tf.nn.embedding_lookup(embed, self.index_input) #shape: [batch, length, num_embed_units]
 
         #todo: implement 3 RNNCells (BasicRNNCell, GRUCell, BasicLSTMCell) in a multi-layer setting with #num_units neurons and #num_layers layers
-        cell_fw = 
-        cell_bw = 
+
+        def multi_cell(layers, cell, *args, **kwargs):
+            res = []
+            for i in range(layers):
+                res.append(cell(*args, **kwargs))
+            return MultiRNNCell(res)
+                
+        cell_name = "LSTM"
+        cell_fw, cell_bw = None, None
+        if cell_name == "RNN":
+            cell_fw = multi_cell(num_layers, BasicRNNCell, num_units, reuse=tf.AUTO_REUSE)
+            cell_bw = multi_cell(num_layers, BasicRNNCell, num_units, reuse=tf.AUTO_REUSE)
+        elif cell_name == "LSTM":
+            cell_fw = multi_cell(num_layers, BasicLSTMCell, num_units, reuse=tf.AUTO_REUSE)
+            cell_bw = multi_cell(num_layers, BasicLSTMCell, num_units, reuse=tf.AUTO_REUSE)
+        elif cell_name == "GRU":
+            cell_fw = multi_cell(num_layers, GRUCell, num_units, reuse=tf.AUTO_REUSE)
+            cell_bw = multi_cell(num_layers, GRUCell, num_units, reuse=tf.AUTO_REUSE)
+
 
         #todo: implement bidirectional RNN
-        outputs, states = tf.nn.bidirectional_dynamic_rnn(, , , , dtype=tf.float32, scope="rnn")
+        outputs, states = tf.nn.bidirectional_dynamic_rnn(cell_fw, cell_bw, self.embed_input, self.texts_length, dtype=tf.float32, scope=cell_name)
         H = tf.concat(outputs, 2) # shape: (batch, length, 2*num_units)
-        
+        length = H.shape[1]
         
         with tf.variable_scope('logits'):
             #todo: implement self-attention mechanism, feel free to add codes to calculate temporary results
             Ws1 = tf.get_variable("Ws1", [2*num_units, param_da])
             Ws2 = tf.get_variable("Ws2", [param_da, param_r])
 
-            M =              # shape: [batch, param_r, 2*num_units]
+            A1 = math_ops.tanh(tf.matmul(H, tf.reshape(tf.tile(Ws1, [batch_size, 1]), [batch_size, 2*num_units, param_da]))) # shape: [batch, length, param_da]
+            A = tf.transpose(tf.nn.softmax(tf.matmul(A1, tf.reshape(tf.tile(Ws2, [batch_size, 1]), [batch_size, param_da, param_r]))), [0,2,1]) # shape: [batch, param_r, length]
+            M = tf.matmul(A, H) # shape: [batch, param_r, 2*num_units]
             flatten_M = tf.reshape(M, shape=[batch_size, param_r*2*num_units]) # shape: [batch, param_r*2*num_units]
 
             logits = tf.layers.dense(flatten_M, num_labels, activation=None, name='projection') # shape: [batch, num_labels]
 		
         #todo: calculate additional loss, feel free to add codes to calculate temporary results
         identity = tf.reshape(tf.tile(tf.diag(tf.ones([param_r])), [batch_size, 1]), [batch_size, param_r, param_r])
-        self.penalized_term = 
+        self.penalized_term = tf.reduce_mean(tf.norm(tf.matmul(A, tf.transpose(A, [0,2,1])) - identity, axis=[-2,-1]))
 
         
         self.loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.labels, logits=logits), name='loss') + 0.0001*self.penalized_term

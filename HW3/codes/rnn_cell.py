@@ -328,8 +328,8 @@ class GRUCell(RNNCell):
             r, u = array_ops.split(value=value, num_or_size_splits=2, axis=1)
         with vs.variable_scope("candidate"):
             #todo: calculate c and new_h according to GRU
-            c =
-        new_h = 
+            c = math_ops.tanh(_linear([inputs, r * state], self._num_units, True, None, None))
+        new_h = (1 - u) * state + u * c
         return new_h, new_h
 
 
@@ -405,8 +405,14 @@ class BasicLSTMCell(RNNCell):
             c, h = array_ops.split(value=state, num_or_size_splits=2, axis=1)
 
         #todo: calculate new_c and new_h according to LSTM
-        new_c = 
-        new_h = 
+        value1 = _linear([inputs, h], 4 * self._num_units, True, None, None)
+        vi, vo, vf, vu = array_ops.split(value=value1, num_or_size_splits=4, axis=1)
+        i = math_ops.sigmoid(vi)
+        o = math_ops.sigmoid(vo)
+        f = math_ops.sigmoid(vf)
+        u = math_ops.tanh(vu)
+        new_c = f * c + i * u
+        new_h = o * math_ops.tanh(new_c)
 
         if self._state_is_tuple:
             new_state = LSTMStateTuple(new_c, new_h)
