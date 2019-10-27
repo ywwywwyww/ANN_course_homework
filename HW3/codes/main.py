@@ -23,6 +23,8 @@ tf.app.flags.DEFINE_string("train_dir", "./train", "Training directory.")
 tf.app.flags.DEFINE_integer("per_checkpoint", 1000, "How many steps to do per checkpoint.")
 tf.app.flags.DEFINE_integer("inference_version", 0, "The version for inferencing.")
 tf.app.flags.DEFINE_boolean("log_parameters", True, "Set to True to show the parameters")
+tf.app.flags.DEFINE_float("drop_rate", 0.5, "Dropout Rate")
+tf.app.flags.DEFINE_boolean("with_attention", False, "Set to True to enable Attention")
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -93,8 +95,8 @@ def train(model, sess, dataset):
         st, ed = ed, ed+FLAGS.batch_size if ed+FLAGS.batch_size < len(dataset) else len(dataset)
         batch_data = gen_batch_data(dataset[st:ed])
         outputs = model.train_step(sess, batch_data)
-        loss += outputs[0]
-        accuracy += outputs[1]
+        loss += outputs[0] * (ed - st)
+        accuracy += outputs[1] * (ed - st)
 
     return loss / len(dataset), accuracy / len(dataset)
 
@@ -103,9 +105,9 @@ def evaluate(model, sess, dataset):
     while ed < len(dataset):
         st, ed = ed, ed+FLAGS.batch_size if ed+FLAGS.batch_size < len(dataset) else len(dataset)
         batch_data = gen_batch_data(dataset[st:ed])
-        outputs = sess.run(['loss:0', 'accuracy:0'], {'texts:0':batch_data['texts'], 'texts_length:0':batch_data['texts_length'], 'labels:0':batch_data['labels']})
-        loss += outputs[0]
-        accuracy += outputs[1]
+        outputs = sess.run(['loss:0', 'accuracy:0'], {'texts:0':batch_data['texts'], 'texts_length:0':batch_data['texts_length'], 'labels:0':batch_data['labels'], 'is_train:0':False})
+        loss += outputs[0] * (ed - st)
+        accuracy += outputs[1] * (ed - st)
     return loss / len(dataset), accuracy / len(dataset)
 
 def inference(model, sess, dataset):
@@ -114,7 +116,7 @@ def inference(model, sess, dataset):
     while ed < len(dataset):
         st, ed = ed, ed+FLAGS.batch_size if ed+FLAGS.batch_size < len(dataset) else len(dataset)
         batch_data = gen_batch_data(dataset[st:ed])
-        outputs = sess.run(['predict_labels:0'], {'texts:0':batch_data['texts'], 'texts_length:0':batch_data['texts_length']})
+        outputs = sess.run(['predict_labels:0'], {'texts:0':batch_data['texts'], 'texts_length:0':batch_data['texts_length'], 'is_train:0':False})
         result += outputs[0].tolist()
 
     with open('result.txt', 'w') as f:
@@ -129,6 +131,7 @@ with tf.Session(config=config) as sess:
         data_train = load_data(FLAGS.data_dir, 'train.txt')
         data_dev = load_data(FLAGS.data_dir, 'dev.txt')
         vocab, embed = build_vocab(FLAGS.data_dir, data_train)
+
         
         model = RNN(
                 FLAGS.symbols, 
@@ -140,6 +143,9 @@ with tf.Session(config=config) as sess:
                 learning_rate=FLAGS.learning_rate)
         if FLAGS.log_parameters:
             model.print_parameters()
+
+        merged = tf.summary.merge_all()
+        writer = tf.summary.FileWriter('logs/run3/', sess.graph)
         
         if tf.train.get_checkpoint_state(FLAGS.train_dir):
             print("Reading model parameters from %s" % FLAGS.train_dir)
@@ -159,6 +165,11 @@ with tf.Session(config=config) as sess:
             model.saver.save(sess, '%s/checkpoint' % FLAGS.train_dir, global_step=epoch)
             loss, accuracy = evaluate(model, sess, data_dev)
             print("        dev_set, loss %.8f, accuracy [%.8f]" % (loss, accuracy))
+
+            batch_data = gen_batch_data(data_dev)
+            result = sess.run(merged, {'texts:0':batch_data['texts'], 'texts_length:0':batch_data['texts_length'], 'labels:0':batch_data['labels'], 'is_train:0':False})
+            writer.add_summary(result, epoch + 1)
+
     else:
         data_dev = load_data(FLAGS.data_dir, 'dev.txt')
         data_test = load_data(FLAGS.data_dir, 'test.txt')
