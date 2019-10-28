@@ -9,22 +9,26 @@ random.seed(1229)
 
 from model import RNN, _START_VOCAB
 
+tf.app.flags.DEFINE_boolean("with_attention", False, "Set to True to enable Attention")
+tf.app.flags.DEFINE_string("model_name", "RNN", "Name of the Model")
+tf.app.flags.DEFINE_string("full_name", "%s_%s_attention" %
+                           (tf.app.flags.FLAGS.model_name, "with" if tf.app.flags.FLAGS.with_attention else "without")
+                           , "Full Name of the Model")
 tf.app.flags.DEFINE_boolean("is_train", True, "Set to False to inference.")
 tf.app.flags.DEFINE_integer("symbols", 18430, "vocabulary size.")
 tf.app.flags.DEFINE_integer("labels", 5, "Number of labels.")
 tf.app.flags.DEFINE_float("learning_rate", 0.005, "Number of labels.")
-tf.app.flags.DEFINE_integer("epoch", 20, "Number of epoch.")
+tf.app.flags.DEFINE_integer("epoch", 50, "Number of epoch.")
 tf.app.flags.DEFINE_integer("embed_units", 300, "Size of word embedding.")
 tf.app.flags.DEFINE_integer("units", 512, "Size of each model layer.")
 tf.app.flags.DEFINE_integer("layers", 1, "Number of layers in the model.")
 tf.app.flags.DEFINE_integer("batch_size", 16, "Batch size to use during training.")
 tf.app.flags.DEFINE_string("data_dir", "./data", "Data directory")
-tf.app.flags.DEFINE_string("train_dir", "./train", "Training directory.")
+tf.app.flags.DEFINE_string("train_dir", "./train/%s" % tf.app.flags.FLAGS.full_name, "Training directory.")
 tf.app.flags.DEFINE_integer("per_checkpoint", 1000, "How many steps to do per checkpoint.")
 tf.app.flags.DEFINE_integer("inference_version", 0, "The version for inferencing.")
 tf.app.flags.DEFINE_boolean("log_parameters", True, "Set to True to show the parameters")
 tf.app.flags.DEFINE_float("drop_rate", 0.5, "Dropout Rate")
-tf.app.flags.DEFINE_boolean("with_attention", False, "Set to True to enable Attention")
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -123,8 +127,16 @@ def inference(model, sess, dataset):
         for label in result:
             f.write('%d\n' % label)
 
+
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
+
+# print(sys.argv)
+# print(FLAGS.model_name)
+# print(FLAGS.with_attention)
+# print(FLAGS.full_name)
+# exit(0)
+
 with tf.Session(config=config) as sess:
     if FLAGS.is_train:
         print(FLAGS.__flags)
@@ -132,6 +144,7 @@ with tf.Session(config=config) as sess:
         data_dev = load_data(FLAGS.data_dir, 'dev.txt')
         vocab, embed = build_vocab(FLAGS.data_dir, data_train)
 
+        sys.stdout.flush();
         
         model = RNN(
                 FLAGS.symbols, 
@@ -145,7 +158,8 @@ with tf.Session(config=config) as sess:
             model.print_parameters()
 
         merged = tf.summary.merge_all()
-        writer = tf.summary.FileWriter('logs/run3/', sess.graph)
+        train_writer = tf.summary.FileWriter('logs/%s_train/' % FLAGS.full_name, sess.graph)
+        dev_writer = tf.summary.FileWriter('logs/%s_validation/' % FLAGS.full_name)
         
         if tf.train.get_checkpoint_state(FLAGS.train_dir):
             print("Reading model parameters from %s" % FLAGS.train_dir)
@@ -157,6 +171,8 @@ with tf.Session(config=config) as sess:
                 constant_op.constant(list(range(FLAGS.symbols)), dtype=tf.int64))
             sess.run(op_in)
 
+        sys.stdout.flush();
+
         for epoch in list(range(FLAGS.epoch)):
             random.shuffle(data_train)
             start_time = time.time()
@@ -165,10 +181,14 @@ with tf.Session(config=config) as sess:
             model.saver.save(sess, '%s/checkpoint' % FLAGS.train_dir, global_step=epoch)
             loss, accuracy = evaluate(model, sess, data_dev)
             print("        dev_set, loss %.8f, accuracy [%.8f]" % (loss, accuracy))
+            sys.stdout.flush();
 
+            batch_data = gen_batch_data(data_train)
+            result = sess.run(merged, {'texts:0':batch_data['texts'], 'texts_length:0':batch_data['texts_length'], 'labels:0':batch_data['labels'], 'is_train:0':False})
+            train_writer.add_summary(result, epoch + 1)
             batch_data = gen_batch_data(data_dev)
             result = sess.run(merged, {'texts:0':batch_data['texts'], 'texts_length:0':batch_data['texts_length'], 'labels:0':batch_data['labels'], 'is_train:0':False})
-            writer.add_summary(result, epoch + 1)
+            dev_writer.add_summary(result, epoch + 1)
 
     else:
         data_dev = load_data(FLAGS.data_dir, 'dev.txt')

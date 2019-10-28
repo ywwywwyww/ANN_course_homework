@@ -75,27 +75,28 @@ class RNN(object):
             return MultiRNNCell(res)
 
         self.penalized_term = 0
-                
-        name = "CNN"
-        if name == 'CNN':
+
+        if FLAGS.model_name == 'CNN':
             reshape = tf.reshape(self.embed_input, shape=[batch_size, -1, num_embed_units, 1]) # shape: [batch, length, num_units,  1]
             logits = CNN_forward(reshape, self.texts_length, num_embed_units, [2,3,4], 100, self.is_train, tf.AUTO_REUSE)
         else:
             cell_fw, cell_bw = None, None
-            if name == "RNN":
+            if FLAGS.model_name == "RNN":
                 cell_fw = multi_cell(num_layers, BasicRNNCell, num_units, reuse=tf.AUTO_REUSE)
                 cell_bw = multi_cell(num_layers, BasicRNNCell, num_units, reuse=tf.AUTO_REUSE)
-            elif name == "LSTM":
+            elif FLAGS.model_name == "LSTM":
                 cell_fw = multi_cell(num_layers, BasicLSTMCell, num_units, reuse=tf.AUTO_REUSE)
                 cell_bw = multi_cell(num_layers, BasicLSTMCell, num_units, reuse=tf.AUTO_REUSE)
-            elif name == "GRU":
+            elif FLAGS.model_name == "GRU":
                 cell_fw = multi_cell(num_layers, GRUCell, num_units, reuse=tf.AUTO_REUSE)
                 cell_bw = multi_cell(num_layers, GRUCell, num_units, reuse=tf.AUTO_REUSE)
 
 
             #todo: implement bidirectional RNN
-            outputs, states = tf.nn.bidirectional_dynamic_rnn(cell_fw, cell_bw, self.embed_input, self.texts_length, dtype=tf.float32, scope=name)
+            self.embed_input = tf.layers.dropout(self.embed_input, rate=FLAGS.drop_rate, training=self.is_train, name="inputs_dropout")
+            outputs, states = tf.nn.bidirectional_dynamic_rnn(cell_fw, cell_bw, self.embed_input, self.texts_length, dtype=tf.float32, scope=FLAGS.model_name)
             H = tf.concat(outputs, 2) # shape: (batch, length, 2*num_units)
+            H = tf.layers.dropout(H, rate=FLAGS.drop_rate, training=self.is_train, name="H_dropout")
 
             if FLAGS.with_attention:
                 with tf.variable_scope('logits'):
@@ -105,7 +106,7 @@ class RNN(object):
 
                     A1 = math_ops.tanh(tf.matmul(H, tf.reshape(tf.tile(Ws1, [batch_size, 1]), [batch_size, 2*num_units, param_da]))) # shape: [batch, length, param_da]
                     A = tf.transpose(tf.nn.softmax(tf.matmul(A1, tf.reshape(tf.tile(Ws2, [batch_size, 1]), [batch_size, param_da, param_r]))), [0,2,1]) # shape: [batch, param_r, length]
-                    M = tf.matmul(tf.reshape(tf.tile(A, [batch_size, 1]), [batch_size, param_r, 2*num_units]), H) # shape: [batch, param_r, 2*num_units]
+                    M = tf.matmul(A, H) # shape: [batch, param_r, 2*num_units]
                     flatten_M = tf.reshape(M, shape=[batch_size, param_r*2*num_units]) # shape: [batch, param_r*2*num_units]
 
                     logits = tf.layers.dense(flatten_M, num_labels, activation=None, name='projection') # shape: [batch, num_labels]
@@ -124,7 +125,7 @@ class RNN(object):
         self.accuracy = tf.reduce_mean(tf.cast(tf.equal(self.labels, predict_labels), tf.float32), name='accuracy')
 
         self.params = tf.trainable_variables()
-            
+
         # calculate the gradient of parameters
         opt = tf.train.GradientDescentOptimizer(self.learning_rate)
         gradients = tf.gradients(self.loss, self.params)
@@ -134,7 +135,7 @@ class RNN(object):
                 global_step=self.global_step)
         
         self.saver = tf.train.Saver(write_version=tf.train.SaverDef.V2, 
-                max_to_keep=5, pad_step_number=True)
+                max_to_keep=51, pad_step_number=True)
 
         with tf.name_scope("loss"):
             tf.summary.scalar("loss", self.loss)
