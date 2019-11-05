@@ -265,7 +265,7 @@ class RNNCell(base_layer.Layer):
 class BasicRNNCell(RNNCell):
     """The most basic RNN cell.
     Args:
-        num_units: int, The number of units in the LSTM cell.
+        num_units: int, The number of units in the RNN cell.
         activation: Nonlinearity to use.    Default: `tanh`.
         reuse: (optional) Python boolean describing whether to reuse variables
          in an existing scope.    If not `True`, and the existing scope already has
@@ -328,7 +328,7 @@ class GRUCell(RNNCell):
             r, u = array_ops.split(value=value, num_or_size_splits=2, axis=1)
         with vs.variable_scope("candidate"):
             #todo: calculate c and new_h according to GRU
-            c = math_ops.tanh(_linear([inputs, r * state], self._num_units, True, None, None))
+            c = math_ops.tanh(_linear([inputs, r * state], self._num_units, True))
         new_h = (1 - u) * state + u * c
         return new_h, new_h
 
@@ -405,12 +405,18 @@ class BasicLSTMCell(RNNCell):
             c, h = array_ops.split(value=state, num_or_size_splits=2, axis=1)
 
         #todo: calculate new_c and new_h according to LSTM
-        value1 = _linear([inputs, h], 4 * self._num_units, True, None, None)
-        vi, vo, vf, vu = array_ops.split(value=value1, num_or_size_splits=4, axis=1)
-        i = math_ops.sigmoid(vi)
-        o = math_ops.sigmoid(vo)
-        f = math_ops.sigmoid(vf)
-        u = math_ops.tanh(vu)
+        with vs.variable_scope("forget_gate"):
+            dtype = [a.dtype for a in [inputs, h]][0]
+            bias = init_ops.constant_initializer(self._forget_bias, dtype=dtype)
+            value = _linear([inputs, h], self._num_units, True, bias)
+            f = math_ops.sigmoid(value)
+
+        with vs.variable_scope("others"):
+            value = _linear([inputs, h], 3 * self._num_units, True)
+            vi, vo, vu = array_ops.split(value=value, num_or_size_splits=3, axis=1)
+            i = math_ops.sigmoid(vi)
+            o = math_ops.sigmoid(vo)
+            u = math_ops.tanh(vu)
         new_c = f * c + i * u
         new_h = o * math_ops.tanh(new_c)
 

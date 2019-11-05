@@ -78,7 +78,7 @@ class RNN(object):
 
         if FLAGS.model_name == 'CNN':
             reshape = tf.reshape(self.embed_input, shape=[batch_size, -1, num_embed_units, 1]) # shape: [batch, length, num_units,  1]
-            logits = CNN_forward(reshape, self.texts_length, num_embed_units, [2,3,4], 100, self.is_train, tf.AUTO_REUSE)
+            logits = CNN_forward(reshape, self.texts_length, num_embed_units, [2,3,4,5], 1000, k=5, is_train=self.is_train, reuse=tf.AUTO_REUSE)
         else:
             cell_fw, cell_bw = None, None
             if FLAGS.model_name == "RNN":
@@ -113,14 +113,15 @@ class RNN(object):
 
                 #todo: calculate additional loss, feel free to add codes to calculate temporary results
                 identity = tf.reshape(tf.tile(tf.diag(tf.ones([param_r])), [batch_size, 1]), [batch_size, param_r, param_r])
-                self.penalized_term = tf.reduce_mean(tf.norm(tf.matmul(A, tf.transpose(A, [0,2,1])) - identity, axis=[1,2]))
+                B = tf.matmul(A, tf.transpose(A, [0,2,1])) - identity # shape: [batch, param_r, length]
+                self.penalized_term = tf.reduce_mean(tf.reduce_sum(B * B, axis=[1,2])) # scalar
             else:
                 with tf.variable_scope('logits'):
                     output = tf.reduce_mean(H, 1) # shape: [batch, 2*num_units]
                     flatten = tf.reshape(output, shape=[batch_size, 2*num_units]) # shape: [batch, 2*num_units]
                     logits = tf.layers.dense(flatten, num_labels, activation=None, name='projection')
 
-        self.loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.labels, logits=logits), name='loss') + 0.0001*self.penalized_term
+        self.loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.labels, logits=logits), name='loss') + FLAGS.penalized_rate*self.penalized_term
         predict_labels = tf.argmax(logits, 1, 'predict_labels')
         self.accuracy = tf.reduce_mean(tf.cast(tf.equal(self.labels, predict_labels), tf.float32), name='accuracy')
 
@@ -135,12 +136,12 @@ class RNN(object):
                 global_step=self.global_step)
         
         self.saver = tf.train.Saver(write_version=tf.train.SaverDef.V2, 
-                max_to_keep=51, pad_step_number=True)
+                max_to_keep=50, pad_step_number=True)
 
-        with tf.name_scope("loss"):
-            tf.summary.scalar("loss", self.loss)
-        with tf.name_scope("accuracy"):
-            tf.summary.scalar("accuracy", self.accuracy)
+#        with tf.name_scope("loss"):
+#            tf.summary.scalar("loss", self.loss)
+#        with tf.name_scope("accuracy"):
+#            tf.summary.scalar("accuracy", self.accuracy)
 
     def print_parameters(self):
         for item in self.params:

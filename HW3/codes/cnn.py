@@ -30,17 +30,28 @@ from tensorflow.python.util import nest
 
 FLAGS = tf.app.flags.FLAGS
 
-def CNN_forward(input, length, embed_units, filter_sizes, num_filters, is_train=None, reuse=None):
+def k_max_pooling(input, k=1):
+    batch_size = tf.shape(input)[0]
+    length = tf.shape(input)[1]
+    channels = tf.shape(input)[3]
+    reshaped = tf.reshape(input, shape=[batch_size, length, channels])
+    transposed = tf.transpose(reshaped, [0, 2, 1])
+    top_k = tf.nn.top_k(transposed, k=k, sorted=True, name="top_k")[0]
+    return tf.reshape(top_k, shape=[batch_size, channels * k])
+
+def CNN_forward(input, length, embed_units, filter_sizes, num_filters, k=1, is_train=None, reuse=None):
     pooled = []
     for filter_size in filter_sizes:
         with tf.name_scope("CNN-%d" % filter_size):
             conv = tf.layers.conv2d(input, num_filters, (filter_size, embed_units), padding='valid', name="conv2d_1_%d" % filter_size, reuse=reuse)
                 # shape: [batch, length-filter_size+1, 1, num_filters]
             # print(conv.shape)
-            pool = tf.reduce_max(conv, 1)
+#            bn = tf.layers.layer_normalization(conv, name="bn_1", training=is_train, reuse=reuse)
+#            pool = tf.reduce_max(conv, 1)
+            pool = k_max_pooling(conv, k)
             # print(pool.shape)
             # pool = tf.layers.max_pooling2d(conv, (length - filter_size + 1, 1), (1, 1), name="maxpooling2d_1")
-            reshaped = tf.reshape(pool, shape=[-1, num_filters])
+            reshaped = tf.reshape(pool, shape=[-1, num_filters * k])
             pooled.append(reshaped)
 
     with tf.name_scope("CNN"):
