@@ -105,7 +105,7 @@ $$
 
 　　（其中每一个中左边的数值是未加 Dropout 的结果，右边的数值是带 Dropout 的结果）
 
-　　通过对比，可以得到结论：在没有 Self-Attention 时， RNN 的收敛速度较快，LSTM 和 GRU 的收敛速度差不多相同，在没有 Dropout 时，RNN 的正确率最高，有 Dropout 时 GRU 的正确率最高。在有 Self-Attention 时，RNN 的收敛速度最快，GRU 次之，LSTM 最慢。GRU 的正确率最高。无论是否有 Self-Attention，加入 Dropout 会给正确率带来一定的提升。Self-Attention 会加快模型的收敛速度。最终，GRU+Self-Attention+Dropout 能够在正确率上超过 CNN 方法。
+　　通过对比，可以得到结论：在没有 Self-Attention 时， RNN 的收敛速度较快，LSTM 和 GRU 的收敛速度差不多相同，在没有 Dropout 时，RNN 的正确率最高，有 Dropout 时 GRU 的正确率最高。在有 Self-Attention 时，RNN 的收敛速度最快，GRU 次之，LSTM 最慢。GRU 的正确率最高。无论是否有 Self-Attention，加入 Dropout 会给正确率带来一定的提升。Self-Attention 能提高模型的正确率（RNN 除外）和加快模型的收敛速度。最终，GRU+Self-Attention+Dropout 能够在正确率上超过 CNN 方法。
 
 ## 5. Conclusion
 
