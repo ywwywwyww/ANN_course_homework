@@ -33,26 +33,35 @@ class Attack():
 
         preds = tf.nn.softmax(logits)
         acc = tf.reduce_mean(tf.cast(tf.equal(tf.cast(tf.argmax(preds, 1), dtype=tf.int32), gt), tf.float32))
-        return acc, loss, x_round
+        return acc, loss, x_round, preds
 
     def regularization(self, pertubations):
         # TODO: regularization
-        return reg
+        return self.beta * tf.reduce_sum(tf.abs(pertubations), axis=1) + self.gamma * tf.reduce_sum(tf.square(pertubations), axis=1)
 
     def cross_entropy_loss(self, ground_truth, target, logits, is_targeted_attack):
         # TODO: loss definition for both untargeted attack and targeted attack
         if is_targeted_attack:
-            loss = ?
-        else: 
-            loss = ?
+            target_onehot = tf.one_hot(target, config.nr_class)
+            loss = tf.nn.softmax_cross_entropy_with_logits(labels=target_onehot, logits=logits)
+        else:
+            gt_onehot = tf.one_hot(ground_truth, config.nr_class)
+            loss = -tf.nn.softmax_cross_entropy_with_logits(labels=gt_onehot, logits=logits)
         return loss
 
     def CW_attack_loss(self, ground_truth, target, logits, is_targeted_attack):
         # TODO: loss definition for both untargeted attack and targeted attack
+        k = tf.cast(tf.fill([tf.shape(logits)[0]], -self.CW_kappa), tf.float32)
         if is_targeted_attack:
-            loss = ?
-        else: 
-            loss = ?
+            target_onehot = tf.one_hot(target, config.nr_class)
+            _target = tf.reduce_max(target_onehot * logits, axis=1)
+            others = tf.reduce_max((1 - target_onehot) * logits, axis=1)
+            loss = tf.maximum(others - _target, k)
+        else:
+            gt_onehot = tf.one_hot(ground_truth, config.nr_class)
+            real = tf.reduce_max(gt_onehot * logits, axis=1)
+            others = tf.reduce_max((1 - gt_onehot) * logits, axis=1)
+            loss = tf.maximum(real - others, k)
         return loss
 
     '''Build a graph for evaluating the classification result of adversarial examples'''

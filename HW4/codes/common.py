@@ -19,8 +19,8 @@ class Config:
 
     weight_decay = 1e-10
 
-    show_interval = 100
-    
+    # show_interval = 100
+    show_interval = 1
     '''mean and standard deviation for normalizing the image input '''
     mean = 120.707
     std = 64.15

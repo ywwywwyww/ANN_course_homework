@@ -98,7 +98,8 @@ class Model():
             return norm
 
     def drop_layer(self, bottom, rate):
-        return tf.nn.dropout(bottom, rate)
+        # return tf.nn.dropout(bottom, rate)
+        return bottom
 
     def fc_layer(self, bottom, name, ac = False, bn = False):
         with tf.variable_scope(name):

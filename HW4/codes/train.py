@@ -5,6 +5,7 @@ import sys
 import argparse
 import tensorflow as tf
 import numpy as np
+import time
 
 from custom_vgg16_bn import Model
 from dataset import Dataset
@@ -26,12 +27,12 @@ def get_dataset_batch(ds_name):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--nr_epoch", type=int, default=500,  help="you may need to increase nr_epoch to 4000 or more for targeted adversarial attacks")
-    parser.add_argument("--alpha", type=float, default=0, help="coefficient of either cross entropy loss or C&W attack loss")
+    parser.add_argument("--alpha", type=float, default=0.001, help="coefficient of either cross entropy loss or C&W attack loss")
     parser.add_argument("--beta", type=float, default=0, help="coefficient of lasso regularization")
     parser.add_argument("--gamma", type=float, default=0, help="coefficient of ridge regularization")
-    parser.add_argument("--CW_kappa", type=float, default=0, help="hyperparameter for C&W attack loss")
-    parser.add_argument("--use_cross_entropy_loss", action='store_true')
-    parser.add_argument("--targeted_attack", action='store_true')
+    parser.add_argument("--CW_kappa", type=float, default=1000000, help="hyperparameter for C&W attack loss")
+    parser.add_argument("--use_cross_entropy_loss", default=False, action='store_true')
+    parser.add_argument("--targeted_attack", default=False, action='store_true')
     args = parser.parse_args()
 
     ## load dataset
@@ -45,8 +46,8 @@ def main():
     model = Model()
     attack = Attack(model, config.minibatch_size, args.alpha, args.beta, args.gamma, args.CW_kappa, args.use_cross_entropy_loss)
     target = label if args.targeted_attack else None
-    acc, loss, adv = attack.generate_graph(pre_noise, data, gt, target)
-    acc_gt = attack.evaluate(data, gt) 
+    acc, loss, adv, preds = attack.generate_graph(pre_noise, data, gt, target)
+    acc_gt = attack.evaluate(data, gt)
 
     placeholders = {
         'data': data,
@@ -60,8 +61,9 @@ def main():
     train = opt.apply_gradients(grads)
     ## init tensorboard
     tf.summary.scalar('loss', loss)
+    tf.summary.scalar('accuracy', acc)
     merged = tf.summary.merge_all()
-    train_writer = tf.summary.FileWriter(os.path.join(config.log_dir, 'tf_log', 'train'), tf.get_default_graph())
+    # train_writer = tf.summary.FileWriter(os.path.join(config.log_dir, 'tf_log', 'train'), tf.get_default_graph())
 
     ## create a session
     tf.set_random_seed(12345) # ensure consistent results
@@ -87,29 +89,49 @@ def main():
                 labels = (gt + 5) % config.nr_class
             else:
                 labels = gt
+            labels = labels.astype(gt.dtype)
 
             min_distortion = np.inf
             min_l1 = np.inf
             min_l2 = np.inf
             min_linf = np.inf
 
+            accumulative_loss = []
+            accumulative_accuracy = []
+
+            start_time = time.time()
+
             for epoch in range(1, args.nr_epoch + 1):
                 global_cnt += 1
+                # print(images)
+                # print(labels)
+                # print(gt)
+                # print(type(labels[0]))
+                # print(type(gt[0]))
                 feed_dict = {
                     placeholders['data']: images,
                     placeholders['label']: labels,
                     placeholders['gt']: gt,
                 }
-                _, accuracy, loss_batch, adv_examples, summary = sess.run([train, acc, loss, adv, merged],
+                _, accuracy, loss_batch, adv_examples, predictions, summary = sess.run([train, acc, loss, adv, preds, merged],
                                                                        feed_dict=feed_dict)
 
+                accumulative_accuracy.append(accuracy)
+                accumulative_loss.append(loss_batch)
+                # print(gt)
+                # print(labels)
+                # print(predictions)
+                # print(loss_batch, accuracy)
+
                 if global_cnt % config.show_interval == 0:
-                    train_writer.add_summary(summary, global_cnt)
+                    # train_writer.add_summary(summary, global_cnt)
                     print(
                         "e:{}/{}, {}".format(idx, train_set.minibatches, epoch),
-                        'loss: {:.3f}'.format(loss_batch),
-                        'acc: {:3f}'.format(accuracy),
+                        'loss: {:.3f}'.format(np.mean(accumulative_loss)),
+                        'acc: {:3f}'.format(np.mean(accumulative_accuracy)),
                     )
+                    accumulative_accuracy = []
+                    accumulative_loss = []
 
                 successful = acc_gt.eval(feed_dict={placeholders['data']: adv_examples, placeholders['gt']: labels}) > 0.5 if args.targeted_attack else acc_gt.eval(feed_dict={placeholders['data']: adv_examples, placeholders['gt']: gt}) < 0.5
 
@@ -123,7 +145,7 @@ def main():
                         min_l2 = min(min_l2, np.sqrt(l2_square))
                         min_linf = min(min_linf, np.max((adv_examples - images) / 255))
 
-            print('Training for batch {} is done'.format(idx))
+            print('Training for batch {} is done. Time = {}'.format(idx, time.time() - start_time))
             sys.stdout.flush()
 
             if min_distortion != np.inf:
